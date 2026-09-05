@@ -1,7 +1,7 @@
 ![Temple Lab — Molecular Workbench, a little curiosity and a whole world of possibilities](docs/banner.svg)
 
 <div align="center">
-  <img src="public/favicon.svg" width="64" height="64" alt="Temple Lab molecular mark" />
+  <img src="public/temple-lab-mark.png" width="80" height="80" alt="Temple Lab molecular mark" />
   <h1>Temple Molecular Workbench</h1>
   <p><strong>A space to explore, one bond at a time.</strong></p>
   <p>An interactive 3D chemistry studio for the curious.<br />Explore reference molecules, build structures, and see chemistry take shape.</p>
@@ -35,6 +35,14 @@ Start with benzene's ring, rotate methane's tetrahedron, or build a structure fr
 
 ## Get started
 
+### One click on macOS
+
+Download the [Apple Silicon Mac bundle](https://github.com/templetwo/temple-molecular-workbench/releases/latest/download/Temple-Lab-macOS-arm64.zip), unzip it, and double-click **Temple Lab.app**. The bundle includes the simulator and its runtime. No terminal commands, Node installation, npm installation, or internet connection are needed to use the bundled workbench.
+
+The current bundle is for Apple Silicon Macs running macOS 11 or later. It is not yet Developer ID signed or notarized; downloaded copies may require approval in macOS Privacy & Security. See [launcher notes](docs/LAUNCHER.md) for details and source-build instructions.
+
+### Run from source
+
 Use **Node.js 22.12 or newer** and npm. The 3D view requires a browser with WebGL 2 support.
 
 ```sh
@@ -49,14 +57,17 @@ Open the address printed by Vite, normally **http://127.0.0.1:5173**. Choose a m
 | Command            | Purpose                                                      |
 | ------------------ | ------------------------------------------------------------ |
 | `npm run dev`      | Start the local development server                           |
-| `npm test`         | Run chemistry and workspace-state regression tests           |
+| `npm test`         | Run chemistry, workspace-state, and launcher regression tests |
 | `npm run lint`     | Check the source with ESLint                                 |
 | `npm run build`    | Type-check and produce the static site in `dist/`            |
 | `npm run preview`  | Preview the production build locally                         |
-| `npm run check`    | Run chemistry tests, lint, and the production build          |
+| `npm run check`    | Run regression tests, lint, and the production build          |
 | `npm run test:e2e` | Verify real browser workflows against a running local server |
+| `npm run test:packaged` | Verify the offline production app at `127.0.0.1:5178`   |
 
 For browser tests, start `npm run dev` in another terminal. The test runner uses locally installed Google Chrome when available; otherwise run `npx playwright install chromium` once. Failure screenshots are written to `test-results/`. To refresh the README screenshots, use `npm run test:e2e -- --screenshot`.
+
+Use `npm start` to open an existing production build, `npm run bundle:mac` to create the app and ZIP for the current Mac architecture, and `npm run icons` to regenerate the PNG logos and native icon from the SVG artwork.
 
 ## Controls
 
@@ -130,3 +141,5 @@ Built with React 19, TypeScript, Three.js, React Three Fiber, Drei, Zustand, Rad
 Chemistry corrections, focused interaction improvements, and accessible learning tools are welcome. Start with [the contribution guide](CONTRIBUTING.md) and [the review and roadmap](docs/REVIEW.md). Please include an authoritative source when changing scientific data or claims.
 
 Licensed under the [MIT License](LICENSE). © 2026 The Temple of Two.
+
+The bundled Node.js runtime retains its own license and third-party notices. The [logo kit](docs/BRANDING.md) includes editable SVG artwork and PNG exports.

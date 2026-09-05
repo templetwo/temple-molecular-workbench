@@ -24,7 +24,9 @@ const context = await browser.newContext({
   reducedMotion: 'reduce',
 });
 const page = await context.newPage();
-page.setDefaultTimeout(10_000);
+// Cold WebGL shader compilation on software-rendered CI runners can outlive
+// Playwright's input dispatch. Keep normal actionability checks and allow 30s.
+page.setDefaultTimeout(30_000);
 page.on('pageerror', (error) => errors.push(error.message));
 
 async function state(target = page) {
@@ -327,6 +329,29 @@ try {
     assert.equal((await state()).scene.atoms.length, count + 1);
     assert.equal((await state()).scene.atoms.at(-1).sym, 'Ne');
     assert.equal((await state()).tableOpen, false);
+    const lattice = page.locator('.element-inspector canvas');
+    await lattice.scrollIntoViewIfNeeded();
+    await lattice.waitFor({ state: 'visible' });
+    const rendererRoots = await page.evaluateHandle(async () => {
+      const module = performance.getEntriesByType('resource').map((entry) => entry.name)
+        .find((name) => new URL(name).pathname.endsWith('/@react-three_fiber.js'));
+      if (!module) throw new Error('Could not locate the loaded renderer module');
+      const { _roots } = await import(module);
+      return _roots;
+    });
+    // Import once above; Playwright polling predicates must be synchronous.
+    // A visible canvas can precede the renderer's layout-effect registration.
+    const latticeStateHandle = await page.waitForFunction((roots) => {
+      const canvas = document.querySelector('.element-inspector canvas');
+      const root = roots.get(canvas)?.store.getState();
+      if (!root?.internal.active || typeof root.gl?.getContext !== 'function') return false;
+      return { frameloop: root.frameloop, contextLost: root.gl.getContext().isContextLost() };
+    }, rendererRoots);
+    const latticeState = await latticeStateHandle.jsonValue();
+    await latticeStateHandle.dispose();
+    await rendererRoots.dispose();
+    assert.equal(latticeState.frameloop, 'demand', 'The inspector must not run a second perpetual render loop');
+    assert.equal(latticeState.contextLost, false, 'The Neon lattice uses a real WebGL context');
     await trigger.click();
     await page.keyboard.press('Escape');
     assert.equal((await state()).tableOpen, false);

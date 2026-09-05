@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="280" viewBox="0 0 1200 280" role="img" aria-labelledby="title desc">
+  <title id="title">Temple Lab — Molecular Workbench</title>
+  <desc id="desc">The Temple Lab atom mark beside the wordmark and Molecular Workbench subtitle.</desc>
+  <rect width="1200" height="280" rx="32" fill="#151d17"/>
+  <rect x="45" y="45" width="190" height="190" rx="46" fill="#222e23" stroke="#d5f582" stroke-opacity=".2"/>
+  <g fill="none" stroke="#d5f582" stroke-width="3.5"><ellipse cx="140" cy="140" rx="60" ry="23" transform="rotate(30 140 140)"/><ellipse cx="140" cy="140" rx="60" ry="23" transform="rotate(-30 140 140)"/><ellipse cx="140" cy="140" rx="60" ry="23" transform="rotate(90 140 140)"/></g>
+  <circle cx="140" cy="140" r="9" fill="#d5f582"/>
+  <text x="290" y="141" fill="#edf3e7" font-family="Arial,Helvetica,sans-serif" font-weight="600" font-size="69" letter-spacing="7">TEMPLE<tspan fill="#d5f582" font-weight="300"> / LAB</tspan></text>
+  <text x="294" y="189" fill="#92a487" font-family="Arial,Helvetica,sans-serif" font-size="23" letter-spacing="4">MOLECULAR WORKBENCH</text>
+</svg>

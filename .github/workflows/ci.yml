@@ -26,6 +26,13 @@ jobs:
           trap 'kill "$temple_server_pid"' EXIT
           curl --retry 20 --retry-connrefused --retry-delay 1 --silent --fail --output /dev/null http://127.0.0.1:5173
           npm run test:e2e
+      - name: Verify the offline production workbench
+        run: |
+          node scripts/serve.mjs --port 5178 > /tmp/temple-production.log 2>&1 &
+          temple_production_pid=$!
+          trap 'kill "$temple_production_pid"' EXIT
+          curl --retry 20 --retry-connrefused --retry-delay 1 --silent --fail --output /dev/null http://127.0.0.1:5178/__temple_health
+          npm run test:packaged
       - name: Preserve failure screenshots
         if: failure()
         uses: actions/upload-artifact@v7

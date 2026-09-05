@@ -185,7 +185,7 @@ export default function ElementCard() {
                 </div>
                 <p className="mt-2 text-center text-[11px] text-[#b1beaa]">{el.lattice}</p>
                 <p className="mt-1.5 text-center text-[9px] leading-relaxed text-[#89958a]">
-                  Illustrative unit cell · not to scale
+                  Drag to rotate · illustrative unit cell · not to scale
                 </p>
               </>
             ) : (

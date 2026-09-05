@@ -13,5 +13,9 @@ Temple Molecular Workbench turns the original chemistry prototype into an intera
 - Formula, molar mass, bond distances, fragment counts, and limited neutral-valence notes.
 - Responsive layouts, dialog focus handling, and a recoverable WebGL-unavailable view.
 - Public-registry dependency lockfile, automated checks, source references, contribution templates, and MIT licensing.
+- A one-click macOS app with its own Node runtime, an offline loopback server, and an architecture-specific ZIP bundle.
+- Temple Lab vector and PNG logos, a native macOS icon, and reproducible branding assets.
+
+The downloadable Mac bundle targets Apple Silicon and macOS 11 or later. It is not yet Developer ID signed or notarized.
 
 This release models and explains molecular structures. It does not calculate reactions, equilibrium geometries, or quantum behavior. The inherited elemental-property data remains subject to a provenance audit.

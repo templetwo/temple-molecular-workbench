@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>CFBundleIdentifier</key>
+  <string>org.templetwo.temple-lab</string>
+  <key>CFBundleName</key>
+  <string>Temple Lab</string>
+  <key>CFBundleDisplayName</key>
+  <string>Temple Lab</string>
+  <key>CFBundleExecutable</key>
+  <string>TempleLab</string>
+  <key>CFBundleIconFile</key>
+  <string>AppIcon</string>
+  <key>CFBundlePackageType</key>
+  <string>APPL</string>
+  <key>CFBundleInfoDictionaryVersion</key>
+  <string>6.0</string>
+  <key>CFBundleShortVersionString</key>
+  <string>__APP_VERSION__</string>
+  <key>CFBundleVersion</key>
+  <string>__APP_VERSION__</string>
+  <key>LSMinimumSystemVersion</key>
+  <string>__MIN_MACOS__</string>
+  <key>LSArchitecturePriority</key>
+  <array><string>__ARCHITECTURE__</string></array>
+  <key>LSApplicationCategoryType</key>
+  <string>public.app-category.education</string>
+  <key>LSUIElement</key>
+  <true/>
+  <key>NSHighResolutionCapable</key>
+  <true/>
+  <key>NSHumanReadableCopyright</key>
+  <string>Copyright © 2026 The Temple of Two. MIT License.</string>
+</dict>
+</plist>

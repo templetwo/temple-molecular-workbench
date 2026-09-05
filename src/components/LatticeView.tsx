@@ -1,5 +1,6 @@
-import { useMemo, useRef, useState } from 'react';
-import { Canvas, useFrame } from '@react-three/fiber';
+import { useMemo, useState } from 'react';
+import { Canvas } from '@react-three/fiber';
+import { OrbitControls } from '@react-three/drei';
 import * as THREE from 'three';
 
 /** Procedural unit-cell generator for common lattice types. */
@@ -51,7 +52,6 @@ function latticePoints(kind: string): [number, number, number][] {
 }
 
 function Cell({ kind, color }: { kind: string; color: string }) {
-  const group = useRef<THREE.Group>(null);
   const pts = useMemo(() => latticePoints(kind), [kind]);
 
   // connect nearest neighbors with thin rods
@@ -67,15 +67,8 @@ function Cell({ kind, color }: { kind: string; color: string }) {
     return out;
   }, [pts]);
 
-  useFrame((_, dt) => {
-    if (group.current) {
-      group.current.rotation.y += dt * 0.45;
-      group.current.rotation.x = Math.sin(Date.now() * 0.0002) * 0.25 + 0.35;
-    }
-  });
-
   return (
-    <group ref={group} scale={0.78}>
+    <group rotation={[0.35, 0.45, 0]} scale={0.78}>
       {pts.map((p, i) => (
         <mesh key={i} position={p}>
           <sphereGeometry args={[0.16, 20, 20]} />
@@ -120,11 +113,13 @@ export default function LatticeView({ kind, color }: { kind: string; color: stri
       camera={{ position: [0, 0, 4.4], fov: 40 }}
       style={{ background: 'rgba(255,255,255,0.02)', borderRadius: 8 }}
       dpr={[1, 1.5]}
+      frameloop="demand"
     >
       <ambientLight intensity={0.7} />
       <directionalLight position={[4, 5, 6]} intensity={1.4} />
-      <pointLight position={[-4, -3, -4]} intensity={0.5} color="#38bdf8" />
+      <pointLight position={[-4, -3, -4]} intensity={0.5} color="#d5f582" />
       <Cell kind={kind} color={color} />
+      <OrbitControls enablePan={false} enableZoom={false} enableDamping={false} />
     </Canvas>
   );
 }

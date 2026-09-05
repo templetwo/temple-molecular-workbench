@@ -235,7 +235,7 @@ export default function App() {
       <header className="app-header">
         <div className="brand">
           <span className="brand-mark">
-            <Atom size={23} strokeWidth={1.5} />
+            <img src={`${import.meta.env.BASE_URL}temple-lab-mark.svg`} width="34" height="34" alt="" />
           </span>
           <span>
             TEMPLE<span className="brand-lab"> / LAB</span>
