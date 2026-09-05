@@ -1,0 +1,28 @@
+name: Feature request
+description: Propose a focused improvement to exploration, editing, or learning.
+title: "[Feature]: "
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: What would you like to do?
+      description: Describe the task or learning goal and what is currently difficult.
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed behavior
+      description: Explain what a user would see or do. A small example or sketch helps.
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives or existing workarounds
+      description: Include simpler approaches you have considered, if any.
+  - type: textarea
+    id: references
+    attributes:
+      label: Chemistry sources and additional context
+      description: For new molecules, scientific properties, or calculated behavior, include authoritative references and any known model limitations.

@@ -1,0 +1,42 @@
+name: Bug report
+description: Report a reproducible problem with the molecular workbench.
+title: "[Bug]: "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Help us reproduce the behavior. For chemistry data corrections, include a source and the affected property or molecule.
+  - type: textarea
+    id: behavior
+    attributes:
+      label: What happened?
+      description: Describe the actual behavior and what you expected instead.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Load the water preset.
+        2. Switch to Move mode.
+        3. ...
+    validations:
+      required: true
+  - type: input
+    id: environment
+    attributes:
+      label: Browser and operating system
+      placeholder: "Example: Chrome 140 on macOS 15; desktop, 1440 × 900"
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Version or commit
+      description: Include the commit hash, release, or URL you were using, if known.
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Screenshots, workspace, logs, or scientific references
+      description: Attach a small exported workspace or screenshot if useful. Include only data you intend to share. For a chemistry correction, link the authoritative source and state its units.
