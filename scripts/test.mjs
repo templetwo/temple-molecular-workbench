@@ -1,21 +1,26 @@
 import { build } from 'esbuild';
-import { mkdtemp, rm } from 'node:fs/promises';
+import { mkdtemp, readdir, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { spawnSync } from 'node:child_process';
 
 const directory = await mkdtemp(join(tmpdir(), 'temple-tests-'));
 try {
-  const output = join(directory, 'chemistry.test.mjs');
+  const tests = (await readdir('tests')).filter((name) => name.endsWith('.test.ts')).sort();
   await build({
-    entryPoints: ['tests/chemistry.test.ts'],
+    entryPoints: tests.map((name) => join('tests', name)),
     bundle: true,
     platform: 'node',
     format: 'esm',
-    outfile: output,
+    outdir: directory,
+    outExtension: { '.js': '.mjs' },
     tsconfig: 'tsconfig.app.json',
   });
-  const result = spawnSync(process.execPath, ['--test', output], { stdio: 'inherit' });
+  const result = spawnSync(
+    process.execPath,
+    ['--test', ...tests.map((name) => join(directory, name.replace(/\.ts$/, '.mjs')))],
+    { stdio: 'inherit' },
+  );
   process.exitCode = result.status ?? 1;
 } finally {
   await rm(directory, { recursive: true, force: true });

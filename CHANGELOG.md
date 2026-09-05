@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.1.0 — 2026-09-05
+
+- A separate Electron Lab with rotatable hydrogen 1s, 2s, and 2p probability clouds, radial/angular node explanations, and optional enlarged nucleus markers.
+- A guided H₂ bonding lesson links electron density, nuclear separation, and a 25-point calculated energy curve. Keyboard-accessible controls compare close, lowest-sampled-energy, and separated-atom configurations.
+- Reproducible PySCF 2.14.0 singlet FCI/STO-3G data includes total energy, AO density matrices, a same-basis separated-neutral-H reference, generator provenance, and numerical validation.
+- Demand-rendered clouds, responsive lessons, focus handling, and useful scientific content when WebGL is unavailable. The main workbench canvas is suspended while the lab is open; its graph and history stay separate.
+
+These are stationary probability/density views and precomputed fixed-nuclei calculations, not electron trajectories, live reactions, or quantum calculations on edited structures. The compact molecular basis is an educational approximation. See [Electron Lab scientific notes](docs/ELECTRON-SCIENCE.md).
+
 ## 1.0.0 — 2026-09-05
 
 Temple Molecular Workbench turns the original chemistry prototype into an interactive learning studio.

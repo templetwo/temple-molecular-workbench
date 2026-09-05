@@ -1,0 +1,1136 @@
+{
+  "schemaVersion": 1,
+  "model": {
+    "method": "FCI (singlet)",
+    "basis": "STO-3G",
+    "software": "PySCF 2.14.0",
+    "referenceDescription": "0 eV = two separated neutral H atoms calculated in the same STO-3G basis.",
+    "atomicEnergyHartree": -0.4665818495572752,
+    "referenceEnergyHartree": -0.9331636991145504,
+    "nuclearRepulsionIncluded": true,
+    "electronCount": 2,
+    "approximation": "Nonrelativistic Born\u2013Oppenheimer ground-state singlet; full configuration interaction within the minimal STO-3G basis. No nuclear motion, zero-point energy, relativistic correction, or complete-basis limit.",
+    "sources": [
+      "https://pyscf.org/user/ci.html",
+      "https://pyscf.org/user/gto.html",
+      "https://pyscf.org/_modules/pyscf/fci/direct_spin1.html",
+      "https://physics.nist.gov/cuu/Constants/Table/allascii.txt"
+    ]
+  },
+  "provenance": {
+    "generatedAtUtc": "2026-09-05T19:25:42.014681+00:00",
+    "generator": "scripts/generate-hydrogen.py",
+    "generatorSha256": "997fe16cd13be600e8278dadaa12cc7a3896002db6ef63852cec3bbf7dee19e9",
+    "pythonVersion": "3.14.6",
+    "pyscfVersion": "2.14.0",
+    "numpyVersion": "2.5.2",
+    "scfConvergenceHartree": 1e-13,
+    "fciConvergenceHartree": 1e-13,
+    "densityValidation": "Tr(P S)=2 and independent PySCF level-5 atom-centered grid integration; exported AO expansion checked against PySCF eval_gto at five probe points."
+  },
+  "units": {
+    "coordinates": "angstrom",
+    "energy": "hartree",
+    "relativeEnergy": "eV",
+    "density": "electrons/angstrom^3"
+  },
+  "constants": {
+    "bohrAngstrom": 0.529177210544,
+    "hartreeEv": 27.211386245981,
+    "source": "CODATA 2022, NIST"
+  },
+  "basis": {
+    "exponentsBohr2": [
+      3.42525091,
+      0.62391373,
+      0.1688554
+    ],
+    "coefficients": [
+      0.2769343609526476,
+      0.26783885175252714,
+      0.0834736696169253
+    ],
+    "convention": "chi_A(r) = sum_p coefficients[p] exp(-exponentsBohr2[p] |r_bohr-A_bohr|^2); all primitive and contraction normalizations included."
+  },
+  "densityProbeCoordinatesAngstrom": [
+    [
+      0.0,
+      0.0,
+      0.0
+    ],
+    [
+      0.4,
+      0.0,
+      0.0
+    ],
+    [
+      0.0,
+      0.7,
+      0.0
+    ],
+    [
+      0.8,
+      0.5,
+      0.3
+    ],
+    [
+      2.0,
+      1.0,
+      -1.0
+    ]
+  ],
+  "equilibriumStepIndex": 7,
+  "equilibriumDescription": "Lowest energy among the sampled separations; not an optimized or experimental equilibrium distance.",
+  "steps": [
+    {
+      "distanceAngstrom": 0.3,
+      "energyHartree": -0.6018037117451611,
+      "relativeEnergyEv": 9.016764602771838,
+      "electronicEnergyHartree": -2.365727746891828,
+      "nuclearRepulsionHartree": 1.763924035146667,
+      "densityMatrixAO": [
+        [
+          0.5508916908454092,
+          0.4856190277275899
+        ],
+        [
+          0.4856190277275899,
+          0.5508916908454052
+        ]
+      ],
+      "overlapMatrixAO": [
+        [
+          1.0000000000000004,
+          0.9248161285115907
+        ],
+        [
+          0.9248161285115907,
+          1.0000000000000004
+        ]
+      ],
+      "naturalOccupations": [
+        1.9950925484844437,
+        0.004907451515556243
+      ],
+      "electronCount": 2.0,
+      "integratedElectronCount": 2.0000000004245027,
+      "spinSquared": 0.0,
+      "aoReconstructionMaxError": 1.1102230246251565e-16,
+      "densityProbesPerAngstrom3": [
+        4.1918603331684965,
+        1.5132116811814436,
+        0.3035633283127311,
+        0.08775041662545828,
+        7.831078693491351e-05
+      ]
+    },
+    {
+      "distanceAngstrom": 0.4,
+      "energyHartree": -0.91414970520594,
+      "relativeEnergyEv": 0.5173971323259295,
+      "electronicEnergyHartree": -2.23709273156594,
+      "nuclearRepulsionHartree": 1.32294302636,
+      "densityMatrixAO": [
+        [
+          0.5597607993475017,
+          0.5039753068970975
+        ],
+        [
+          0.5039753068970972,
+          0.5597607993475032
+        ]
+      ],
+      "overlapMatrixAO": [
+        [
+          1.0000000000000004,
+          0.8735332755943656
+        ],
+        [
+          0.8735332755943656,
+          1.0000000000000004
+        ]
+      ],
+      "naturalOccupations": [
+        1.9929449915004422,
+        0.007055008499558005
+      ],
+      "electronCount": 1.9999999999999996,
+      "integratedElectronCount": 2.0000000000285088,
+      "spinSquared": 0.0,
+      "aoReconstructionMaxError": 1.1102230246251565e-16,
+      "densityProbesPerAngstrom3": [
+        3.5358253860692996,
+        1.711267300528355,
+        0.2947902464365224,
+        0.09467725005450378,
+        8.690185582902539e-05
+      ]
+    },
+    {
+      "distanceAngstrom": 0.5,
+      "energyHartree": -1.0551597947975657,
+      "relativeEnergyEv": -3.3196828801321843,
+      "electronicEnergyHartree": -2.1135142158855658,
+      "nuclearRepulsionHartree": 1.058354421088,
+      "densityMatrixAO": [
+        [
+          0.5760624539857407,
+          0.5203487553116432
+        ],
+        [
+          0.5203487553116432,
+          0.5760624539857436
+        ]
+      ],
+      "overlapMatrixAO": [
+        [
+          1.0000000000000004,
+          0.8147180937530177
+        ],
+        [
+          0.8147180937530177,
+          1.0000000000000004
+        ]
+      ],
+      "naturalOccupations": [
+        1.989677259705593,
+        0.010322740294407056
+      ],
+      "electronCount": 1.9999999999999996,
+      "integratedElectronCount": 1.9999999999825597,
+      "spinSquared": 0.0,
+      "aoReconstructionMaxError": 2.220446049250313e-16,
+      "densityProbesPerAngstrom3": [
+        2.8954456015579297,
+        1.9346875708144189,
+        0.2832576910471195,
+        0.10363168351231732,
+        9.866778327546262e-05
+      ]
+    },
+    {
+      "distanceAngstrom": 0.6,
+      "energyHartree": -1.1162860070239722,
+      "relativeEnergyEv": -4.983011850778737,
+      "electronicEnergyHartree": -1.9982480245973058,
+      "nuclearRepulsionHartree": 0.8819620175733335,
+      "densityMatrixAO": [
+        [
+          0.5970470453453858,
+          0.5362673983110477
+        ],
+        [
+          0.5362673983110477,
+          0.5970470453453862
+        ]
+      ],
+      "overlapMatrixAO": [
+        [
+          1.0000000000000004,
+          0.7514030424443056
+        ],
+        [
+          0.7514030424443056,
+          1.0000000000000004
+        ]
+      ],
+      "naturalOccupations": [
+        1.9848903646659546,
+        0.015109635334045485
+      ],
+      "electronCount": 1.9999999999999996,
+      "integratedElectronCount": 1.999999999962692,
+      "spinSquared": 0.0,
+      "aoReconstructionMaxError": 1.1102230246251565e-16,
+      "densityProbesPerAngstrom3": [
+        2.3305942460456315,
+        2.148339419397783,
+        0.26906659677227956,
+        0.11461533907955675,
+        0.0001141844661291665
+      ]
+    },
+    {
+      "distanceAngstrom": 0.65,
+      "energyHartree": -1.1299047844113144,
+      "relativeEnergyEv": -5.353597662463737,
+      "electronicEnergyHartree": -1.9440235698636221,
+      "nuclearRepulsionHartree": 0.8141187854523076,
+      "densityMatrixAO": [
+        [
+          0.6088915876269885,
+          0.5440681968648553
+        ],
+        [
+          0.5440681968648553,
+          0.6088915876269885
+        ]
+      ],
+      "overlapMatrixAO": [
+        [
+          1.0000000000000004,
+          0.718859169910571
+        ],
+        [
+          0.718859169910571,
+          1.0000000000000004
+        ]
+      ],
+      "naturalOccupations": [
+        1.9817754981119227,
+        0.018224501888077595
+      ],
+      "electronCount": 1.9999999999999993,
+      "integratedElectronCount": 1.9999999999643125,
+      "spinSquared": 0.0,
+      "aoReconstructionMaxError": 1.1102230246251565e-16,
+      "densityProbesPerAngstrom3": [
+        2.0853957066095794,
+        2.2378573758327334,
+        0.26104968862327055,
+        0.12085536891793358,
+        0.0001235702799026424
+      ]
+    },
+    {
+      "distanceAngstrom": 0.7,
+      "energyHartree": -1.136189454099,
+      "relativeEnergyEv": -5.524612236763761,
+      "electronicEnergyHartree": -1.8921568977332859,
+      "nuclearRepulsionHartree": 0.7559674436342858,
+      "densityMatrixAO": [
+        [
+          0.6214944496683532,
+          0.5516854259503636
+        ],
+        [
+          0.5516854259503636,
+          0.6214944496683545
+        ]
+      ],
+      "overlapMatrixAO": [
+        [
+          1.0000000000000004,
+          0.6860894497613583
+        ],
+        [
+          0.6860894497613583,
+          1.0000000000000004
+        ]
+      ],
+      "naturalOccupations": [
+        1.9780862109530633,
+        0.021913789046936732
+      ],
+      "electronCount": 1.9999999999999996,
+      "integratedElectronCount": 1.999999999970456,
+      "spinSquared": 0.0,
+      "aoReconstructionMaxError": 1.1102230246251565e-16,
+      "densityProbesPerAngstrom3": [
+        1.8659562080555263,
+        2.308356244155509,
+        0.2524764317339988,
+        0.12757745155996555,
+        0.00013417737567507495
+      ]
+    },
+    {
+      "distanceAngstrom": 0.72,
+      "energyHartree": -1.1371117151290544,
+      "relativeEnergyEv": -5.549708237872186,
+      "electronicEnergyHartree": -1.8720800631068322,
+      "nuclearRepulsionHartree": 0.7349683479777778,
+      "densityMatrixAO": [
+        [
+          0.6267282009056195,
+          0.5546609620201147
+        ],
+        [
+          0.5546609620201148,
+          0.62672820090562
+        ]
+      ],
+      "overlapMatrixAO": [
+        [
+          1.0000000000000004,
+          0.6729729053490574
+        ],
+        [
+          0.6729729053490574,
+          1.0000000000000004
+        ]
+      ],
+      "naturalOccupations": [
+        1.9764320602477579,
+        0.023567939752242154
+      ],
+      "electronCount": 1.9999999999999998,
+      "integratedElectronCount": 2.0000000000041194,
+      "spinSquared": 0.0,
+      "aoReconstructionMaxError": 1.1102230246251565e-16,
+      "densityProbesPerAngstrom3": [
+        1.7852029593441878,
+        2.330092480853724,
+        0.2489028653152344,
+        0.13039681051081475,
+        0.00013878729755784528
+      ]
+    },
+    {
+      "distanceAngstrom": 0.74,
+      "energyHartree": -1.137283834483977,
+      "relativeEnergyEv": -5.554391844119396,
+      "electronicEnergyHartree": -1.85238817305695,
+      "nuclearRepulsionHartree": 0.715104338572973,
+      "densityMatrixAO": [
+        [
+          0.632064322564752,
+          0.5575854895236081
+        ],
+        [
+          0.557585489523608,
+          0.6320643225647516
+        ]
+      ],
+      "overlapMatrixAO": [
+        [
+          1.0000000000000004,
+          0.6598731214286193
+        ],
+        [
+          0.6598731214286193,
+          1.0000000000000004
+        ]
+      ],
+      "naturalOccupations": [
+        1.974667746998077,
+        0.025332253001923304
+      ],
+      "electronCount": 2.0,
+      "integratedElectronCount": 2.000000000025689,
+      "spinSquared": 0.0,
+      "aoReconstructionMaxError": 1.1102230246251565e-16,
+      "densityProbesPerAngstrom3": [
+        1.7083135219371854,
+        2.3477125153713296,
+        0.24525220264943903,
+        0.1332883203688431,
+        0.00014361834662855895
+      ]
+    },
+    {
+      "distanceAngstrom": 0.76,
+      "energyHartree": -1.1367956187990969,
+      "relativeEnergyEv": -5.541106818546774,
+      "electronicEnergyHartree": -1.8330814221464653,
+      "nuclearRepulsionHartree": 0.6962858033473684,
+      "densityMatrixAO": [
+        [
+          0.6374979995274901,
+          0.5604513209527153
+        ],
+        [
+          0.5604513209527152,
+          0.6374979995274906
+        ]
+      ],
+      "overlapMatrixAO": [
+        [
+          1.0000000000000004,
+          0.6468037221435928
+        ],
+        [
+          0.6468037221435928,
+          1.0000000000000004
+        ]
+      ],
+      "naturalOccupations": [
+        1.9727873999061907,
+        0.027212600093809623
+      ],
+      "electronCount": 2.000000000000001,
+      "integratedElectronCount": 1.9999999999660725,
+      "spinSquared": 0.0,
+      "aoReconstructionMaxError": 2.220446049250313e-16,
+      "densityProbesPerAngstrom3": [
+        1.6351621314811904,
+        2.360979113961549,
+        0.24152818901958822,
+        0.13625005280963026,
+        0.00014867840937390697
+      ]
+    },
+    {
+      "distanceAngstrom": 0.78,
+      "energyHartree": -1.1357266965932271,
+      "relativeEnergyEv": -5.512019963535947,
+      "electronicEnergyHartree": -1.8141590178034837,
+      "nuclearRepulsionHartree": 0.6784323212102564,
+      "densityMatrixAO": [
+        [
+          0.6430246026989787,
+          0.563250144709604
+        ],
+        [
+          0.5632501447096039,
+          0.6430246026989781
+        ]
+      ],
+      "overlapMatrixAO": [
+        [
+          1.0000000000000004,
+          0.6337777285171722
+        ],
+        [
+          0.6337777285171722,
+          1.0000000000000004
+        ]
+      ],
+      "naturalOccupations": [
+        1.9707848167888198,
+        0.02921518321118016
+      ],
+      "electronCount": 2.0,
+      "integratedElectronCount": 2.000000000012613,
+      "spinSquared": 0.0,
+      "aoReconstructionMaxError": 2.220446049250313e-16,
+      "densityProbesPerAngstrom3": [
+        1.565608755600903,
+        2.3696931423781957,
+        0.23773468948545645,
+        0.13927984186878964,
+        0.00015397559538206813
+      ]
+    },
+    {
+      "distanceAngstrom": 0.8,
+      "energyHartree": -1.1341476666255799,
+      "relativeEnergyEv": -5.469052369192318,
+      "electronicEnergyHartree": -1.7956191798055798,
+      "nuclearRepulsionHartree": 0.66147151318,
+      "densityMatrixAO": [
+        [
+          0.648639661183516,
+          0.5659730311321839
+        ],
+        [
+          0.5659730311321839,
+          0.648639661183516
+        ]
+      ],
+      "overlapMatrixAO": [
+        [
+          1.0000000000000004,
+          0.6208075641230036
+        ],
+        [
+          0.6208075641230036,
+          1.0000000000000004
+        ]
+      ],
+      "naturalOccupations": [
+        1.9686534391850934,
+        0.031346560814907144
+      ],
+      "electronCount": 2.000000000000001,
+      "integratedElectronCount": 2.0000000000226414,
+      "spinSquared": 0.0,
+      "aoReconstructionMaxError": 1.1102230246251565e-16,
+      "densityProbesPerAngstrom3": [
+        1.4995025320627786,
+        2.373697176401681,
+        0.23387567832663614,
+        0.14237527196183777,
+        0.0001595182352870062
+      ]
+    },
+    {
+      "distanceAngstrom": 0.85,
+      "energyHartree": -1.1283618783746698,
+      "relativeEnergyEv": -5.311613050359346,
+      "electronicEnergyHartree": -1.7509233025440816,
+      "nuclearRepulsionHartree": 0.6225614241694118,
+      "densityMatrixAO": [
+        [
+          0.6630360772534373,
+          0.5723839813102524
+        ],
+        [
+          0.5723839813102524,
+          0.6630360772534373
+        ]
+      ],
+      "overlapMatrixAO": [
+        [
+          1.0000000000000004,
+          0.5887025733585576
+        ],
+        [
+          0.5887025733585576,
+          1.0000000000000004
+        ]
+      ],
+      "naturalOccupations": [
+        1.9627150262189148,
+        0.03728497378108511
+      ],
+      "electronCount": 1.9999999999999993,
+      "integratedElectronCount": 2.000000000032971,
+      "spinSquared": 0.0,
+      "aoReconstructionMaxError": 1.1102230246251565e-16,
+      "densityProbesPerAngstrom3": [
+        1.3482663770402825,
+        2.362476303504273,
+        0.223968491071957,
+        0.15038278535325164,
+        0.0001745053279062182
+      ]
+    },
+    {
+      "distanceAngstrom": 0.9,
+      "energyHartree": -1.1205602811900375,
+      "relativeEnergyEv": -5.099320776032758,
+      "electronicEnergyHartree": -1.7085349595722596,
+      "nuclearRepulsionHartree": 0.5879746783822222,
+      "densityMatrixAO": [
+        [
+          0.6778930719098905,
+          0.5780944121978723
+        ],
+        [
+          0.5780944121978724,
+          0.677893071909891
+        ]
+      ],
+      "overlapMatrixAO": [
+        [
+          1.0000000000000004,
+          0.5571874096922715
+        ],
+        [
+          0.5571874096922715,
+          1.0000000000000004
+        ]
+      ],
+      "naturalOccupations": [
+        1.9558078969836816,
+        0.044192103016318464
+      ],
+      "electronCount": 1.9999999999999996,
+      "integratedElectronCount": 1.9999999999906148,
+      "spinSquared": 0.0,
+      "aoReconstructionMaxError": 1.1102230246251565e-16,
+      "densityProbesPerAngstrom3": [
+        1.2150093114759808,
+        2.3207782681355105,
+        0.21374351870072544,
+        0.15873356756491383,
+        0.00019121989880420675
+      ]
+    },
+    {
+      "distanceAngstrom": 1.0,
+      "energyHartree": -1.1011503300826944,
+      "relativeEnergyEv": -4.571149099435238,
+      "electronicEnergyHartree": -1.6303275406266944,
+      "nuclearRepulsionHartree": 0.529177210544,
+      "densityMatrixAO": [
+        [
+          0.7087327472826398,
+          0.5866590810898679
+        ],
+        [
+          0.586659081089868,
+          0.7087327472826401
+        ]
+      ],
+      "overlapMatrixAO": [
+        [
+          1.0000000000000004,
+          0.4964846912047398
+        ],
+        [
+          0.4964846912047398,
+          1.0000000000000004
+        ]
+      ],
+      "naturalOccupations": [
+        1.9385340402711768,
+        0.06146595972882321
+      ],
+      "electronCount": 1.9999999999999996,
+      "integratedElectronCount": 2.000000000008523,
+      "spinSquared": 0.0,
+      "aoReconstructionMaxError": 1.1102230246251565e-16,
+      "densityProbesPerAngstrom3": [
+        0.9924525243988789,
+        2.1532484697087035,
+        0.19261717858867852,
+        0.17620752572680531,
+        0.00023042753611846034
+      ]
+    },
+    {
+      "distanceAngstrom": 1.1,
+      "energyHartree": -1.0791929447933635,
+      "relativeEnergyEv": -3.9736582073754336,
+      "electronicEnergyHartree": -1.5602631361969999,
+      "nuclearRepulsionHartree": 0.4810701914036363,
+      "densityMatrixAO": [
+        [
+          0.740625519738577,
+          0.590042082679043
+        ],
+        [
+          0.590042082679043,
+          0.7406255197385766
+        ]
+      ],
+      "overlapMatrixAO": [
+        [
+          1.0000000000000004,
+          0.43958640896214024
+        ],
+        [
+          0.43958640896214024,
+          1.0000000000000004
+        ]
+      ],
+      "naturalOccupations": [
+        1.9156109952866431,
+        0.08438900471335695
+      ],
+      "electronCount": 2.0,
+      "integratedElectronCount": 1.999999999964028,
+      "spinSquared": 0.0,
+      "aoReconstructionMaxError": 1.1102230246251565e-16,
+      "densityProbesPerAngstrom3": [
+        0.8141384506274829,
+        1.9006405939082982,
+        0.1710672086188046,
+        0.19415275189197087,
+        0.000278396310373996
+      ]
+    },
+    {
+      "distanceAngstrom": 1.2,
+      "energyHartree": -1.0567407461160205,
+      "relativeEnergyEv": -3.362702757094751,
+      "electronicEnergyHartree": -1.4977217549026873,
+      "nuclearRepulsionHartree": 0.44098100878666674,
+      "densityMatrixAO": [
+        [
+          0.7729642259877324,
+          0.5866064268527588
+        ],
+        [
+          0.5866064268527588,
+          0.7729642259877328
+        ]
+      ],
+      "overlapMatrixAO": [
+        [
+          1.0000000000000004,
+          0.3870325376937167
+        ],
+        [
+          0.3870325376937167,
+          1.0000000000000004
+        ]
+      ],
+      "naturalOccupations": [
+        1.885768732783251,
+        0.1142312672167491
+      ],
+      "electronCount": 1.9999999999999996,
+      "integratedElectronCount": 2.000000000031324,
+      "spinSquared": 0.0,
+      "aoReconstructionMaxError": 1.1102230246251565e-16,
+      "densityProbesPerAngstrom3": [
+        0.6671010899155712,
+        1.6064742351072385,
+        0.14967403252518516,
+        0.21171275610347456,
+        0.0003364454653755774
+      ]
+    },
+    {
+      "distanceAngstrom": 1.4,
+      "energyHartree": -1.015468249103384,
+      "relativeEnergyEv": -2.2396208995478,
+      "electronicEnergyHartree": -1.3934519709205269,
+      "nuclearRepulsionHartree": 0.3779837218171429,
+      "densityMatrixAO": [
+        [
+          0.8360372155366473,
+          0.5544920467439922
+        ],
+        [
+          0.5544920467439922,
+          0.8360372155366473
+        ]
+      ],
+      "overlapMatrixAO": [
+        [
+          1.0000000000000004,
+          0.2956990734603875
+        ],
+        [
+          0.2956990734603875,
+          1.0000000000000004
+        ]
+      ],
+      "naturalOccupations": [
+        1.8017074767565817,
+        0.19829252324341873
+      ],
+      "electronCount": 2.0,
+      "integratedElectronCount": 2.0000000008288126,
+      "spinSquared": 0.0,
+      "aoReconstructionMaxError": 5.551115123125783e-17,
+      "densityProbesPerAngstrom3": [
+        0.43764268941203094,
+        1.049171223588384,
+        0.10955135061544395,
+        0.2413886787761012,
+        0.0004879204692608323
+      ]
+    },
+    {
+      "distanceAngstrom": 1.6,
+      "energyHartree": -0.9834727288814962,
+      "relativeEnergyEv": -1.3689784406489158,
+      "electronicEnergyHartree": -1.3142084854714962,
+      "nuclearRepulsionHartree": 0.33073575659,
+      "densityMatrixAO": [
+        [
+          0.8915491998307796,
+          0.48833570683732536
+        ],
+        [
+          0.4883357068373254,
+          0.8915491998307795
+        ]
+      ],
+      "overlapMatrixAO": [
+        [
+          1.0000000000000004,
+          0.22208247042100265
+        ],
+        [
+          0.22208247042100265,
+          1.0000000000000004
+        ]
+      ],
+      "naturalOccupations": [
+        1.6863331556376135,
+        0.3136668443623865
+      ],
+      "electronCount": 1.9999999999999996,
+      "integratedElectronCount": 1.999999996414917,
+      "spinSquared": 0.0,
+      "aoReconstructionMaxError": 5.551115123125783e-17,
+      "densityProbesPerAngstrom3": [
+        0.27364068254812185,
+        0.6543940025457288,
+        0.07588156588058788,
+        0.25645752839921965,
+        0.0006935226072208388
+      ]
+    },
+    {
+      "distanceAngstrom": 1.8,
+      "energyHartree": -0.9618169526840309,
+      "relativeEnergyEv": -0.7796947500831664,
+      "electronicEnergyHartree": -1.255804291875142,
+      "nuclearRepulsionHartree": 0.2939873391911111,
+      "densityMatrixAO": [
+        [
+          0.9343367731519074,
+          0.40016208540191617
+        ],
+        [
+          0.4001620854019161,
+          0.9343367731519076
+        ]
+      ],
+      "overlapMatrixAO": [
+        [
+          1.0000000000000004,
+          0.16409157499801844
+        ],
+        [
+          0.16409157499801844,
+          1.0000000000000004
+        ]
+      ],
+      "naturalOccupations": [
+        1.5534788780869797,
+        0.44652112191302074
+      ],
+      "electronCount": 2.0,
+      "integratedElectronCount": 1.9999999944311442,
+      "spinSquared": 0.0,
+      "aoReconstructionMaxError": 2.7755575615628914e-17,
+      "densityProbesPerAngstrom3": [
+        0.16357338004717176,
+        0.4129897846213763,
+        0.05041449981481684,
+        0.25146938387358525,
+        0.0009579622340346874
+      ]
+    },
+    {
+      "distanceAngstrom": 2.0,
+      "energyHartree": -0.9486411121061847,
+      "relativeEnergyEv": -0.4211618630039252,
+      "electronicEnergyHartree": -1.2132297173781847,
+      "nuclearRepulsionHartree": 0.264588605272,
+      "densityMatrixAO": [
+        [
+          0.9631630083581867,
+          0.30899231852142856
+        ],
+        [
+          0.3089923185214286,
+          0.9631630083581867
+        ]
+      ],
+      "overlapMatrixAO": [
+        [
+          1.0000000000000004,
+          0.1192165288059039
+        ],
+        [
+          0.1192165288059039,
+          1.0000000000000004
+        ]
+      ],
+      "naturalOccupations": [
+        1.4238172690521433,
+        0.5761827309478568
+      ],
+      "electronCount": 2.0,
+      "integratedElectronCount": 2.000000017224832,
+      "spinSquared": 0.0,
+      "aoReconstructionMaxError": 2.7755575615628914e-17,
+      "densityProbesPerAngstrom3": [
+        0.09538052222930066,
+        0.26482457986794766,
+        0.032752314575301075,
+        0.22788235843450563,
+        0.00128221594561848
+      ]
+    },
+    {
+      "distanceAngstrom": 2.5,
+      "energyHartree": -0.9360549199376405,
+      "relativeEnergyEv": -0.07867412653952544,
+      "electronicEnergyHartree": -1.1477258041552405,
+      "nuclearRepulsionHartree": 0.21167088421760002,
+      "densityMatrixAO": [
+        [
+          0.9930839764961784,
+          0.13966544384716975
+        ],
+        [
+          0.1396654438471698,
+          0.9930839764961787
+        ]
+      ],
+      "overlapMatrixAO": [
+        [
+          1.0000000000000004,
+          0.049518501594341915
+        ],
+        [
+          0.049518501594341915,
+          1.0000000000000004
+        ]
+      ],
+      "naturalOccupations": [
+        1.1888414743206115,
+        0.8111585256793884
+      ],
+      "electronCount": 1.9999999999999991,
+      "integratedElectronCount": 1.9999999773761297,
+      "spinSquared": 0.0,
+      "aoReconstructionMaxError": 2.7755575615628914e-17,
+      "densityProbesPerAngstrom3": [
+        0.02542073156727049,
+        0.08286115255354078,
+        0.011127677425262371,
+        0.13395684568689953,
+        0.0023427014532209052
+      ]
+    },
+    {
+      "distanceAngstrom": 3.0,
+      "energyHartree": -0.9336318445547109,
+      "relativeEnergyEv": -0.012738886391502002,
+      "electronicEnergyHartree": -1.1100242480693776,
+      "nuclearRepulsionHartree": 0.17639240351466667,
+      "densityMatrixAO": [
+        [
+          0.9989655220511432,
+          0.05664447797323225
+        ],
+        [
+          0.056644477973232285,
+          0.9989655220511431
+        ]
+      ],
+      "overlapMatrixAO": [
+        [
+          1.0000000000000004,
+          0.018262644230656728
+        ],
+        [
+          0.018262644230656728,
+          1.0000000000000004
+        ]
+      ],
+      "naturalOccupations": [
+        1.0748882299011449,
+        0.9251117700988555
+      ],
+      "electronCount": 2.0,
+      "integratedElectronCount": 1.999999973879116,
+      "spinSquared": 0.0,
+      "aoReconstructionMaxError": 2.7755575615628914e-17,
+      "densityProbesPerAngstrom3": [
+        0.007718547165848148,
+        0.023966506444838248,
+        0.003922975315499344,
+        0.058257675414182426,
+        0.0036524604312604186
+      ]
+    },
+    {
+      "distanceAngstrom": 4.0,
+      "energyHartree": -0.9331713618435518,
+      "relativeEnergyEv": -0.0002085134785532843,
+      "electronicEnergyHartree": -1.0654656644795517,
+      "nuclearRepulsionHartree": 0.132294302636,
+      "densityMatrixAO": [
+        [
+          0.9999873247159953,
+          0.007160607576764376
+        ],
+        [
+          0.007160607576764408,
+          0.9999873247159954
+        ]
+      ],
+      "overlapMatrixAO": [
+        [
+          1.0000000000000004,
+          0.0017701408530449872
+        ],
+        [
+          0.0017701408530449872,
+          1.0000000000000004
+        ]
+      ],
+      "naturalOccupations": [
+        1.0089307259927716,
+        0.991069274007229
+      ],
+      "electronCount": 2.0,
+      "integratedElectronCount": 2.000000031709081,
+      "spinSquared": 0.0,
+      "aoReconstructionMaxError": 3.469446951953614e-18,
+      "densityProbesPerAngstrom3": [
+        0.0007683939008930151,
+        0.0024154331906389727,
+        0.00042330435878915653,
+        0.007628714460240079,
+        0.005328771453091283
+      ]
+    },
+    {
+      "distanceAngstrom": 5.0,
+      "energyHartree": -0.9331637619303758,
+      "relativeEnergyEv": -1.7093056851176864e-06,
+      "electronicEnergyHartree": -1.0389992040391758,
+      "nuclearRepulsionHartree": 0.10583544210880001,
+      "densityMatrixAO": [
+        [
+          0.9999999321504784,
+          0.0006292060429565941
+        ],
+        [
+          0.0006292060429566128,
+          0.9999999321504784
+        ]
+      ],
+      "overlapMatrixAO": [
+        [
+          1.0000000000000004,
+          0.00010783354991939902
+        ],
+        [
+          0.00010783354991939902,
+          1.0000000000000004
+        ]
+      ],
+      "naturalOccupations": [
+        1.0007370395855597,
+        0.9992629604144406
+      ],
+      "electronCount": 2.0000000000000004,
+      "integratedElectronCount": 1.9999997761086679,
+      "spinSquared": 0.0,
+      "aoReconstructionMaxError": 4.336808689942018e-19,
+      "densityProbesPerAngstrom3": [
+        5.0147251933441305e-05,
+        0.00023345246706196643,
+        2.7768249018152025e-05,
+        0.000988831087816602,
+        0.003655965126372488
+      ]
+    },
+    {
+      "distanceAngstrom": 6.0,
+      "energyHartree": -0.9331636992945295,
+      "relativeEnergyEv": -4.897478947170466e-09,
+      "electronicEnergyHartree": -1.0213599010518628,
+      "nuclearRepulsionHartree": 0.08819620175733334,
+      "densityMatrixAO": [
+        [
+          0.9999999998739982,
+          3.285662826291433e-05
+        ],
+        [
+          3.285662826288808e-05,
+          0.9999999998739982
+        ]
+      ],
+      "overlapMatrixAO": [
+        [
+          1.0000000000000004,
+          3.8348796890894965e-06
+        ],
+        [
+          3.8348796890894965e-06,
+          1.0000000000000004
+        ]
+      ],
+      "naturalOccupations": [
+        1.000036691507952,
+        0.9999633084920486
+      ],
+      "electronCount": 1.9999999999999998,
+      "integratedElectronCount": 2.000000103224681,
+      "spinSquared": 0.0,
+      "aoReconstructionMaxError": 1.734723475976807e-18,
+      "densityProbesPerAngstrom3": [
+        1.817853982434785e-06,
+        1.3586195586943746e-05,
+        1.0067440378276488e-06,
+        9.117415756777426e-05,
+        0.0013245087893193294
+      ]
+    }
+  ]
+}

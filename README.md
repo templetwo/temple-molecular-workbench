@@ -29,9 +29,25 @@ Start with benzene's ring, rotate methane's tetrahedron, or build a structure fr
 - **Six reference molecules.** Benzene, water, methane, ammonia, carbon dioxide, and ethanol, with geometry notes and source-backed coordinates.
 - **118 elements to explore.** Search by name, symbol, or atomic number; filter categories; inspect element properties and schematic atomic views.
 - **An editable 3D bench.** Move atoms, connect bonds, cycle single/double/triple bonds, and switch between ball-and-stick, illustrative space-fill, and wireframe views.
+- **An Electron Lab.** Explore hydrogen 1s, 2s, and 2p probability clouds, then bring two hydrogen nuclei together and compare their calculated electron density and energy. Your editable workspace stays unchanged.
 - **Structure insights.** Formula, molar mass, composition, connected fragments, bond distances, and advisory checks for common neutral valences.
 - **Room to experiment.** Undo and redo up to 50 structural edits, including atom drags, imported molecules, preset changes, and a cleared bench.
 - **Your workspace, in your browser.** Local saving when browser storage is available, plus portable JSON import and export. No account or molecular-data backend is required.
+
+## Beyond the ball-and-stick model
+
+Open **Electron lab** to see where an electron could be detected—not a tiny planet on an orbit. Explore hydrogen's 1s, 2s, and 2p states, then connect electron density with a calculated H₂ energy curve. Each lesson states what is calculated, what the dots mean, and where the model stops.
+
+![Electron Lab showing hydrogen's two-lobed 2p probability cloud and its nodal-plane explanation](docs/electron-lab.png)
+
+<details>
+<summary>See molecular hydrogen through density and energy</summary>
+
+![The H₂ lesson at its lowest sampled energy, 0.74 Å and −5.554 eV relative to separated neutral hydrogen atoms in the same basis](docs/hydrogen-bond.png)
+
+The curve uses precomputed FCI/STO-3G results; moving the slider does not simulate a reaction. [Read the scientific methods and limitations](docs/ELECTRON-SCIENCE.md).
+
+</details>
 
 ## Get started
 
@@ -54,18 +70,18 @@ npm run dev
 
 Open the address printed by Vite, normally **http://127.0.0.1:5173**. Choose a molecule from the collection or open the element library to add an atom.
 
-| Command            | Purpose                                                      |
-| ------------------ | ------------------------------------------------------------ |
-| `npm run dev`      | Start the local development server                           |
-| `npm test`         | Run chemistry, workspace-state, and launcher regression tests |
-| `npm run lint`     | Check the source with ESLint                                 |
-| `npm run build`    | Type-check and produce the static site in `dist/`            |
-| `npm run preview`  | Preview the production build locally                         |
-| `npm run check`    | Run regression tests, lint, and the production build          |
-| `npm run test:e2e` | Verify real browser workflows against a running local server |
-| `npm run test:packaged` | Verify the offline production app at `127.0.0.1:5178`   |
+| Command                 | Purpose                                                       |
+| ----------------------- | ------------------------------------------------------------- |
+| `npm run dev`           | Start the local development server                            |
+| `npm test`              | Run chemistry, workspace-state, and launcher regression tests |
+| `npm run lint`          | Check the source with ESLint                                  |
+| `npm run build`         | Type-check and produce the static site in `dist/`             |
+| `npm run preview`       | Preview the production build locally                          |
+| `npm run check`         | Run regression tests, lint, and the production build          |
+| `npm run test:e2e`      | Verify real browser workflows against a running local server  |
+| `npm run test:packaged` | Verify the offline production app at `127.0.0.1:5178`         |
 
-For browser tests, start `npm run dev` in another terminal. The test runner uses locally installed Google Chrome when available; otherwise run `npx playwright install chromium` once. Failure screenshots are written to `test-results/`. To refresh the README screenshots, use `npm run test:e2e -- --screenshot`.
+For browser tests, start `npm run dev` in another terminal. The test runner uses locally installed Google Chrome when available; otherwise run `npx playwright install chromium` once. Failure screenshots are written to `test-results/`. To refresh the workbench screenshots, use `node tests/browser.mjs --screenshot`; Electron Lab captures use `node tests/electrons-browser.mjs --screenshot`. The Electron Lab suite also accepts `TEST_BASE_URL` for checking a production build without source imports.
 
 Use `npm start` to open an existing production build, `npm run bundle:mac` to create the app and ZIP for the current Mac architecture, and `npm run icons` to regenerate the PNG logos and native icon from the SVG artwork.
 
@@ -91,6 +107,8 @@ The viewport also has controls for automatic rotation, labels, and the reference
 
 For keyboard editing, open **Your atoms** and choose an atom. Its X/Y/Z fields apply on Enter or when leaving the field. In Bond or Erase mode, the same atom-list buttons connect or remove atoms.
 
+Open **Electron lab** in the header for two separate learning views. Select a hydrogen orbital, drag its cloud to rotate, or switch to **A bond forms** and move the nuclear-separation slider. The slider supports arrow keys and Home/End. **Show nuclei** toggles enlarged reference markers; Escape closes the lab and returns to the workbench. The orbital descriptions and bond-energy curve remain usable without WebGL.
+
 ## The chemistry
 
 The six presets use educational reference geometries derived from the **NIST Computational Chemistry Comparison and Benchmark Database (CCCBDB, SRD 101)**. Coordinates are translated or rotated for presentation without changing their relative distances. One model coordinate unit is **one ångström (Å)**.
@@ -108,7 +126,9 @@ Benzene's alternating bond sticks depict one Kekulé representation. Its π elec
 
 ### Model boundaries
 
-This is an **educational molecular editor**. It does not perform energy minimization, molecular dynamics, reaction prediction, or quantum calculations. Moving atoms changes the drawing; it does not find an equilibrium geometry.
+The **editable molecular workbench** does not perform energy minimization, molecular dynamics, reaction prediction, or quantum calculations. Moving atoms changes the drawing; it does not find an equilibrium geometry.
+
+The separate **Electron Lab** uses analytic nonrelativistic hydrogen orbitals and a precomputed H₂ lesson: 25 fixed nuclear separations calculated with PySCF 2.14.0, singlet FCI, and the minimal STO-3G basis. Its energy zero is two separated neutral H atoms in that same basis, and total energies include nuclear repulsion. The lowest sampled point is 0.74 Å at approximately −5.554392 eV relative to that reference—not an experimental dissociation energy or an optimized geometry. Dots sample probability or electron density; they are not electron trajectories or simultaneous individual electrons. Switching states or moving the slider is not a simulated excitation or reaction. See [the scientific methods, limitations, and reproducible generator](docs/ELECTRON-SCIENCE.md).
 
 Atom radii, bond thicknesses, and the space-fill display are visual conventions. Electron-shell and lattice views are schematic. Bond distances measure the current coordinates. Common-valence notes are limited to selected neutral covalent atoms and do not determine chemical stability, formal charge, aromaticity, or metal coordination.
 
@@ -124,15 +144,18 @@ A workspace supports **128 atoms**, **384 bond records**, and coordinates within
 
 ## Inside the project
 
-| Area                                                       | Responsibility                                                                     |
-| ---------------------------------------------------------- | ---------------------------------------------------------------------------------- |
-| [`src/App.tsx`](src/App.tsx)                               | Studio layout, collection, inspector, commands, import/export UI                   |
-| [`src/components/Bench3D.tsx`](src/components/Bench3D.tsx) | Three.js scene, camera, representations, pointer interaction, WebGL fallback       |
-| [`src/state/store.ts`](src/state/store.ts)                 | Zustand state, history, validation, local persistence, formula and mass helpers    |
-| [`src/data/molecules.ts`](src/data/molecules.ts)           | Reference molecules, lesson text, source links                                     |
-| [`src/data/elements.ts`](src/data/elements.ts)             | Inherited periodic-table dataset                                                   |
-| [`src/lib/chemistry.ts`](src/lib/chemistry.ts)             | Fragment analysis and advisory valence checks                                      |
-| [`tests/chemistry.test.ts`](tests/chemistry.test.ts)       | Reference geometry, graph validation, history, and persistence regression coverage |
+| Area                                                               | Responsibility                                                                     |
+| ------------------------------------------------------------------ | ---------------------------------------------------------------------------------- |
+| [`src/App.tsx`](src/App.tsx)                                       | Studio layout, collection, inspector, commands, import/export UI                   |
+| [`src/components/Bench3D.tsx`](src/components/Bench3D.tsx)         | Three.js scene, camera, representations, pointer interaction, WebGL fallback       |
+| [`src/state/store.ts`](src/state/store.ts)                         | Zustand state, history, validation, local persistence, formula and mass helpers    |
+| [`src/data/molecules.ts`](src/data/molecules.ts)                   | Reference molecules, lesson text, source links                                     |
+| [`src/data/elements.ts`](src/data/elements.ts)                     | Inherited periodic-table dataset                                                   |
+| [`src/lib/chemistry.ts`](src/lib/chemistry.ts)                     | Fragment analysis and advisory valence checks                                      |
+| [`src/components/ElectronLab.tsx`](src/components/ElectronLab.tsx) | Guided orbital and H₂ bonding lessons, energy curve, and accessible controls       |
+| [`src/lib/electrons.ts`](src/lib/electrons.ts)                     | Analytic orbital densities and bounded sampling of the calculated H₂ density       |
+| [`src/data/hydrogen-bond.json`](src/data/hydrogen-bond.json)       | Computed H₂ energies, density matrices, scientific provenance, and validation      |
+| [`tests/chemistry.test.ts`](tests/chemistry.test.ts)               | Reference geometry, graph validation, history, and persistence regression coverage |
 
 Built with React 19, TypeScript, Three.js, React Three Fiber, Drei, Zustand, Radix UI, and Vite. The production output is a static site.
 

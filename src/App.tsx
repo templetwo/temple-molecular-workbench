@@ -35,9 +35,11 @@ import { MOLECULE_PRESETS, byPresetId, type MoleculePreset } from '@/data/molecu
 import { bySymbol } from '@/data/elements';
 import { analyzeStructure } from '@/lib/chemistry';
 import { addElementToBench } from '@/lib/element-library';
+import '@/components/electron-lab.css';
 
 const Bench3D = lazy(() => import('@/components/Bench3D'));
 const ElementCard = lazy(() => import('@/components/ElementCard'));
+const ElectronLab = lazy(() => import('@/components/ElectronLab'));
 const MODES = [
   {
     id: 'move' as Mode,
@@ -120,6 +122,7 @@ export default function App() {
   const [libraryTab, setLibraryTab] = useState<'molecules' | 'atoms'>('molecules');
   const [mobileLibrary, setMobileLibrary] = useState(false);
   const [help, setHelp] = useState(false);
+  const [electronLab, setElectronLab] = useState(false);
   const [notice, setNotice] = useState('');
   const fileInput = useRef<HTMLInputElement>(null);
   const viewport = useRef<HTMLDivElement>(null);
@@ -138,6 +141,7 @@ export default function App() {
       if (
         target?.closest('input,textarea,select,[contenteditable="true"],[role="dialog"]') ||
         help ||
+        electronLab ||
         s.tableOpen ||
         mobileLibrary
       )
@@ -169,7 +173,7 @@ export default function App() {
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [s, help, mobileLibrary]);
+  }, [s, help, mobileLibrary, electronLab]);
   useEffect(() => {
     if (!mobileLibrary) return;
     const previous = document.activeElement as HTMLElement | null;
@@ -235,7 +239,12 @@ export default function App() {
       <header className="app-header">
         <div className="brand">
           <span className="brand-mark">
-            <img src={`${import.meta.env.BASE_URL}temple-lab-mark.svg`} width="34" height="34" alt="" />
+            <img
+              src={`${import.meta.env.BASE_URL}temple-lab-mark.svg`}
+              width="34"
+              height="34"
+              alt=""
+            />
           </span>
           <span>
             TEMPLE<span className="brand-lab"> / LAB</span>
@@ -249,6 +258,45 @@ export default function App() {
           <span className="local-status">
             <i /> Local workspace
           </span>
+          <Dialog.Root open={electronLab} onOpenChange={setElectronLab}>
+            <Dialog.Trigger asChild>
+              <button className="electron-launch-button" aria-label="Electron lab">
+                <Atom size={16} />
+                <span>Electron lab</span>
+              </button>
+            </Dialog.Trigger>
+            <Dialog.Portal>
+              <Dialog.Overlay className="dialog-overlay electron-overlay" />
+              <Dialog.Content className="electron-dialog">
+                <div className="electron-dialog-heading">
+                  <div className="electron-dialog-brand">
+                    <span className="electron-brand-icon">
+                      <Atom size={23} strokeWidth={1.4} />
+                    </span>
+                    <div>
+                      <span className="eyebrow">TEMPLE LAB / GUIDED DISCOVERY</span>
+                      <Dialog.Title>Electron lab</Dialog.Title>
+                    </div>
+                  </div>
+                  <Dialog.Close className="icon-button" aria-label="Close electron lab">
+                    <X size={21} />
+                  </Dialog.Close>
+                </div>
+                <Dialog.Description className="electron-dialog-description">
+                  From one electron to a shared bond. Explore probability, shape, and energy.
+                </Dialog.Description>
+                <Suspense
+                  fallback={
+                    <div className="electron-loading" role="status">
+                      Preparing your electron lab…
+                    </div>
+                  }
+                >
+                  <ElectronLab />
+                </Suspense>
+              </Dialog.Content>
+            </Dialog.Portal>
+          </Dialog.Root>
           <button
             className="icon-button"
             title="Import workspace"
@@ -498,7 +546,7 @@ export default function App() {
                 </div>
               }
             >
-              <Bench3D />
+              {!electronLab && <Bench3D />}
             </Suspense>
             <div className="viewport-topline">
               <span>
@@ -938,8 +986,9 @@ export default function App() {
               <p>
                 This is an educational molecular editor. Presets use reference geometries; atom
                 sizes and bond thicknesses are visual conventions. Space fill is illustrative. No
-                energy minimization, reaction prediction, or quantum simulation is performed.
-                Reference geometry:{' '}
+                energy minimization, reaction prediction, or live quantum calculation is performed
+                on the editable bench. The separate Electron lab includes analytic hydrogen orbitals
+                and a precomputed H₂ quantum-chemistry lesson. Reference geometry:{' '}
                 <a href="https://cccbdb.nist.gov/" target="_blank" rel="noreferrer">
                   NIST CCCBDB
                 </a>

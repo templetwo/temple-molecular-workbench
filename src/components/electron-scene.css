@@ -1,0 +1,175 @@
+.electron-cloud {
+  --cloud-accent: #90ded1;
+  position: relative;
+  isolation: isolate;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  overflow: hidden;
+  border: 1px solid #c8f0d914;
+  border-radius: 12px;
+  background: radial-gradient(
+    ellipse at 50% 44%,
+    #19322f 0%,
+    #142321 37%,
+    #111b1a 68%,
+    #101817 100%
+  );
+}
+.electron-cloud--bond {
+  --cloud-accent: #d5f582;
+  background: radial-gradient(
+    ellipse at 50% 44%,
+    #27321d 0%,
+    #1b2419 37%,
+    #141c17 68%,
+    #101817 100%
+  );
+}
+.electron-viewport > .electron-cloud {
+  min-height: 0;
+  border: 0;
+  border-radius: inherit;
+}
+.electron-cloud-canvas {
+  position: absolute;
+  inset: 0;
+}
+.electron-cloud-topline {
+  position: absolute;
+  z-index: 5;
+  right: 15px;
+  top: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  pointer-events: none;
+}
+.electron-cloud-topline > button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: 1px solid #b3d4b41a;
+  border-radius: 7px;
+  background: #0d181487;
+  color: #aac5af;
+  pointer-events: auto;
+}
+.electron-cloud-topline > button:hover:not(:disabled) {
+  color: var(--cloud-accent);
+  border-color: #c4e9b749;
+  background: #24382e9c;
+}
+.electron-cloud-topline > button:focus-visible,
+.electron-cloud-fallback > button:focus-visible {
+  outline: 2px solid var(--cloud-accent);
+  outline-offset: 3px;
+}
+.electron-cloud-topline > button:disabled {
+  opacity: 0.35;
+}
+.electron-nucleus-label {
+  display: inline-block;
+  padding: 3px 6px;
+  border: 1px solid #e3f0cb20;
+  border-radius: 4px;
+  color: #e1ebd1;
+  background: #101b18d6;
+  font: 10px var(--mono, ui-monospace, monospace);
+  white-space: nowrap;
+  user-select: none;
+}
+.electron-nucleus-label sub {
+  font-size: 7px;
+  padding-left: 1px;
+}
+.electron-cloud-fallback {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  padding: 65px 34px 82px;
+  text-align: center;
+}
+.electron-cloud-fallback > strong {
+  max-width: 280px;
+  color: #d6e5d4;
+  font-size: 17px;
+  font-weight: 500;
+}
+.electron-cloud-fallback > p {
+  max-width: 290px;
+  color: #9ab09e;
+  font-size: 11px;
+  line-height: 1.8;
+}
+.electron-cloud-fallback > button {
+  padding: 9px 13px;
+  margin-top: 3px;
+  border: 1px solid #d5f58235;
+  border-radius: 6px;
+  background: #d5f5820c;
+  color: #cdeba9;
+  font-size: 11px;
+}
+.electron-fallback-mark {
+  position: relative;
+  width: 60px;
+  height: 52px;
+  margin-bottom: 7px;
+}
+.electron-fallback-mark > span,
+.electron-fallback-mark > i {
+  position: absolute;
+  top: 4px;
+  width: 35px;
+  height: 43px;
+  border: 1px solid #aedbc535;
+  border-radius: 50%;
+  background: #93d8b813;
+}
+.electron-fallback-mark > span {
+  left: 1px;
+  transform: rotate(-25deg);
+}
+.electron-fallback-mark > i {
+  right: 1px;
+  transform: rotate(25deg);
+}
+.electron-fallback-mark > b {
+  position: absolute;
+  top: 23px;
+  left: 27px;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #d5e8bf;
+}
+@media (max-width: 600px) {
+  .electron-cloud {
+    border-radius: 9px;
+  }
+  .electron-cloud-topline {
+    top: 12px;
+    right: 12px;
+  }
+  .electron-cloud-fallback {
+    gap: 10px;
+    padding: 48px 20px 45px;
+  }
+  .electron-cloud-fallback > strong {
+    font-size: 15px;
+  }
+  .electron-cloud-fallback > p {
+    font-size: 10px;
+    line-height: 1.7;
+  }
+  .electron-fallback-mark {
+    margin-bottom: 0;
+  }
+}

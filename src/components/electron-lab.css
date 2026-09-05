@@ -1,0 +1,709 @@
+.electron-launch-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 35px;
+  padding: 0 12px;
+  border: 1px solid #d5f58235;
+  border-radius: 7px;
+  background: #d5f58208;
+  color: #d5f582;
+  font-size: 11px;
+  white-space: nowrap;
+}
+.electron-launch-button:hover {
+  background: #d5f58215;
+  border-color: #d5f58280;
+}
+.electron-overlay {
+  z-index: 70;
+  background: #080d0aaf;
+  backdrop-filter: blur(7px);
+}
+.electron-dialog {
+  position: fixed;
+  z-index: 71;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: min(1240px, calc(100vw - 48px));
+  max-height: calc(100dvh - 48px);
+  overflow: auto;
+  border: 1px solid #354235;
+  border-radius: 18px;
+  background: #151c18;
+  color: #edf0e7;
+  box-shadow: 0 24px 100px #0009;
+  outline: none;
+  padding: 28px 30px 16px;
+}
+.electron-dialog-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+.electron-dialog-brand {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.electron-brand-icon {
+  display: grid;
+  place-items: center;
+  width: 45px;
+  height: 45px;
+  border: 1px solid #d5f58230;
+  border-radius: 12px;
+  background: #d5f58209;
+  color: #d5f582;
+}
+.electron-dialog .eyebrow {
+  font-size: 9px;
+  letter-spacing: 0.14em;
+  color: #a7b495;
+  line-height: 1.7;
+}
+.electron-dialog-heading h2 {
+  margin: 3px 0 0;
+  font-size: 25px;
+  letter-spacing: -0.04em;
+  font-weight: 500;
+}
+.electron-dialog-description {
+  margin: 16px 0 23px;
+  color: #96a49a;
+  line-height: 1.6;
+  font-size: 12px;
+}
+.electron-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 280px;
+  color: #b5c0ac;
+  font-size: 13px;
+}
+.electron-navigation {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  border-top: 1px solid #ffffff0b;
+  border-bottom: 1px solid #ffffff0b;
+  padding: 0 0 0;
+  margin-bottom: 25px;
+}
+.electron-tabs {
+  display: flex;
+  align-items: stretch;
+  gap: 26px;
+}
+.electron-tabs > button {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  min-height: 51px;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  background: transparent;
+  color: #9da99f;
+  padding: 0 2px;
+  font-size: 12px;
+}
+.electron-tabs > button > span {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: #71806e;
+}
+.electron-tabs > button[data-state='active'] {
+  color: #d5f582;
+  border-bottom-color: #d5f582;
+}
+.electron-tabs > button[data-state='active'] > span {
+  color: #c0d28c;
+}
+.electron-nuclei-toggle {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  color: #b1bbae;
+  font-size: 11px;
+  white-space: nowrap;
+}
+.electron-nuclei-toggle input {
+  accent-color: #d5f582;
+  width: 14px;
+  height: 14px;
+}
+.electron-tab-panel {
+  outline: none;
+}
+.electron-lesson-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 315px;
+  gap: 26px;
+}
+.electron-visual-column {
+  min-width: 0;
+}
+.electron-scene-heading h3 {
+  font-size: 29px;
+  line-height: 1.2;
+  letter-spacing: -0.05em;
+  font-weight: 450;
+  margin: 10px 0 8px;
+}
+.electron-scene-heading h3 > span {
+  color: #9bab88;
+}
+.electron-scene-heading > p {
+  margin: 0 0 19px;
+  font-size: 12px;
+  line-height: 1.7;
+  color: #9caaa0;
+}
+.electron-viewport {
+  height: 420px;
+  position: relative;
+  overflow: hidden;
+  border-radius: 12px;
+  border: 1px solid #ffffff0a;
+  background: radial-gradient(ellipse at 50% 48%, #202c25 0%, #131c19 74%);
+}
+.electron-viewport-label {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  pointer-events: none;
+  font-family: var(--mono);
+  font-size: 8px;
+  letter-spacing: 0.12em;
+  color: #afbaaa;
+}
+.electron-viewport-footer {
+  position: absolute;
+  bottom: 17px;
+  left: 20px;
+  right: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  pointer-events: none;
+  color: #97a790;
+  font-size: 9px;
+  z-index: 2;
+}
+.electron-viewport-footer > span:first-child {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.electron-cloud-key {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+  font-size: 9px;
+  color: #96a48f;
+  line-height: 1.6;
+}
+.electron-cloud-key > span:first-child {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  color: #becda6;
+}
+.electron-cloud-key i {
+  display: inline-block;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #d5f582;
+}
+.electron-visual-column--atom .electron-cloud-key i {
+  background: #90ded1;
+}
+.electron-lesson-notes {
+  min-width: 0;
+  border-left: 1px solid #ffffff0b;
+  padding: 6px 0 0 24px;
+}
+.electron-orbital-picker {
+  padding: 0;
+  margin: 0;
+  border: 0;
+  min-width: 0;
+}
+.electron-orbital-picker legend {
+  margin-bottom: 12px;
+  font-size: 12px;
+  color: #d2dacb;
+}
+.electron-orbital-picker > div {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+.electron-orbital-picker button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  min-height: 72px;
+  border: 1px solid #ffffff13;
+  border-radius: 9px;
+  color: #b7c2b0;
+  background: #ffffff02;
+  font-size: 24px;
+  font-weight: 400;
+}
+.electron-orbital-picker button > span {
+  font-family: var(--mono);
+  font-size: 8px;
+  letter-spacing: 0.07em;
+  color: #95a28c;
+}
+.electron-orbital-picker button[aria-pressed='true'] {
+  background: #d5f5820d;
+  border-color: #d5f5827a;
+  color: #e0f8ad;
+  box-shadow: inset 0 -2px #d5f582;
+}
+.electron-state-note {
+  font-size: 10px;
+  line-height: 1.7;
+  color: #8d9b90;
+  margin: 12px 0 25px;
+}
+.electron-learning-copy h4 {
+  font-size: 22px;
+  line-height: 1.27;
+  letter-spacing: -0.035em;
+  font-weight: 450;
+  margin: 10px 0 14px;
+}
+.electron-learning-copy > p {
+  color: #a8b6a5;
+  font-size: 12px;
+  line-height: 1.85;
+  margin: 0;
+}
+.electron-insight {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin-top: 21px;
+  border: 1px solid #d5f58214;
+  background: #d5f58204;
+  border-radius: 9px;
+  padding: 14px 12px;
+  color: #b9cc9e;
+}
+.electron-insight > svg,
+.electron-model-note > svg {
+  flex-shrink: 0;
+  margin-top: 3px;
+}
+.electron-insight > p {
+  font-size: 11px;
+  line-height: 1.85;
+  margin: 0;
+  color: #b2c1a3;
+}
+.electron-model-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin-top: 21px;
+  color: #8fa17d;
+}
+.electron-model-note p {
+  font-size: 10px;
+  line-height: 1.9;
+  color: #98a892;
+  margin: 0;
+}
+.electron-next-lesson {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: none;
+  border: 0;
+  border-bottom: 1px solid #d5f58230;
+  color: #d5f582;
+  padding: 10px 0;
+  margin-top: 19px;
+  font-size: 11px;
+}
+.electron-separation-control > label {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 7px;
+  color: #becab7;
+  font-size: 12px;
+}
+.electron-separation-control strong {
+  font-family: var(--mono);
+  font-size: 20px;
+  font-weight: 450;
+  color: #d5f582;
+  white-space: nowrap;
+}
+.electron-separation-control input[type='range'] {
+  accent-color: #d5f582;
+  width: 100%;
+  margin: 17px 0 2px;
+  cursor: pointer;
+}
+.electron-distance-endpoints {
+  display: flex;
+  justify-content: space-between;
+  color: #8b9a81;
+  font-family: var(--mono);
+  font-size: 9px;
+  margin-top: 4px;
+}
+.electron-distance-presets {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 15px 0 22px;
+}
+.electron-state-note.electron-step-note {
+  margin: 8px 0 0;
+  font-size: 9px;
+}
+.electron-distance-presets button {
+  background: #ffffff04;
+  border: 1px solid #ffffff11;
+  border-radius: 5px;
+  color: #b4c0a9;
+  padding: 7px 8px;
+  font-size: 9px;
+}
+.electron-distance-presets button:hover {
+  border-color: #d5f58280;
+  color: #d5f582;
+}
+.electron-energy-value {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  border-top: 1px solid #ffffff0d;
+  padding-top: 17px;
+}
+.electron-energy-value > span {
+  font-size: 10px;
+  color: #a2b196;
+}
+.electron-energy-value strong {
+  font-size: 28px;
+  font-family: var(--mono);
+  font-weight: 400;
+  letter-spacing: -0.04em;
+  color: #e0edcd;
+}
+.electron-energy-value small {
+  font-size: 13px;
+  color: #9eaf8f;
+  font-weight: 400;
+}
+.electron-energy-curve {
+  margin-top: 17px;
+  width: 100%;
+  min-width: 0;
+}
+.electron-energy-curve svg {
+  display: block;
+  width: 100%;
+  overflow: visible;
+}
+.electron-energy-curve text {
+  fill: #a3b29a;
+  font-size: 10px;
+  font-family: var(--mono);
+}
+.electron-energy-curve .energy-axis-title {
+  font-size: 9px;
+  fill: #b7c4ac;
+}
+.energy-axis {
+  stroke: #4e6047;
+  stroke-width: 1;
+}
+.energy-grid {
+  stroke: #d5f58210;
+  stroke-width: 1;
+}
+.energy-zero {
+  stroke: #aac48450;
+  stroke-width: 1;
+  stroke-dasharray: 3 4;
+}
+.energy-curve-line {
+  stroke: #b7d984;
+  stroke-width: 1.8;
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.energy-sample {
+  fill: #b7d984;
+  opacity: 0.65;
+}
+.energy-selected {
+  fill: #e3ffa8;
+  stroke: #293723;
+  stroke-width: 2;
+}
+.energy-guide {
+  stroke: #d5f58266;
+  stroke-width: 1;
+  stroke-dasharray: 3 3;
+}
+.electron-chart-caption {
+  font-size: 9px;
+  color: #8c9d80;
+  line-height: 1.6;
+  margin: 9px 0 17px;
+}
+.electron-bond-notes .electron-learning-copy h4 {
+  font-size: 19px;
+  margin-top: 0;
+  margin-bottom: 10px;
+}
+.electron-bond-notes .electron-learning-copy > p {
+  font-size: 11px;
+  line-height: 1.85;
+}
+.electron-minimum-note {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 14px;
+  color: #a9bf8f;
+  font-size: 9px;
+  line-height: 1.6;
+}
+.electron-minimum-note > svg {
+  flex-shrink: 0;
+}
+.electron-method-details {
+  margin-top: 22px;
+  padding: 13px 17px;
+  border: 1px solid #ffffff0b;
+  border-radius: 9px;
+  color: #a7b29f;
+}
+.electron-method-details summary {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  font-size: 11px;
+  color: #bdcbb1;
+  list-style: none;
+}
+.electron-method-details summary::-webkit-details-marker {
+  display: none;
+}
+.electron-method-details summary > svg:last-child {
+  margin-left: auto;
+  transition: transform 0.15s;
+}
+.electron-method-details[open] summary > svg:last-child {
+  transform: rotate(90deg);
+}
+.electron-method-details p {
+  font-size: 11px;
+  line-height: 1.8;
+  margin: 13px 0 0;
+  max-width: 920px;
+}
+.electron-method-details a {
+  color: #d5f582;
+  text-underline-offset: 3px;
+}
+.electron-method-details a svg {
+  display: inline;
+  vertical-align: middle;
+}
+.electron-lab-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 22px;
+  padding-top: 14px;
+  border-top: 1px solid #ffffff0b;
+  font-size: 9px;
+  color: #8e9e83;
+}
+.electron-lab-footer > span,
+.electron-lab-footer > a {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+.electron-lab-footer a {
+  color: #b3c29f;
+  text-decoration: none;
+}
+@media (min-width: 1450px) and (min-height: 950px) {
+  .electron-viewport {
+    height: 470px;
+  }
+}
+@media (max-width: 1000px) {
+  .electron-dialog {
+    padding: 24px;
+    width: calc(100vw - 30px);
+    max-height: calc(100dvh - 30px);
+  }
+  .electron-lesson-layout {
+    grid-template-columns: minmax(0, 1fr) 280px;
+    gap: 20px;
+  }
+  .electron-lesson-notes {
+    padding-left: 19px;
+  }
+  .electron-scene-heading h3 {
+    font-size: 26px;
+  }
+  .electron-viewport {
+    height: 410px;
+  }
+  .electron-viewport-footer > span:last-child {
+    display: none;
+  }
+  .electron-launch-button {
+    padding: 0 9px;
+  }
+  .electron-launch-button > span {
+    display: none;
+  }
+}
+@media (max-width: 730px) {
+  .electron-dialog {
+    width: calc(100vw - 16px);
+    max-height: calc(100dvh - 16px);
+    padding: 20px 17px 16px;
+    border-radius: 13px;
+  }
+  .electron-dialog-heading h2 {
+    font-size: 23px;
+  }
+  .electron-dialog .eyebrow {
+    font-size: 8px;
+  }
+  .electron-brand-icon {
+    width: 39px;
+    height: 39px;
+  }
+  .electron-dialog-brand {
+    gap: 11px;
+  }
+  .electron-dialog-description {
+    font-size: 11px;
+    margin: 14px 0 19px;
+  }
+  .electron-navigation {
+    gap: 10px;
+    flex-wrap: wrap;
+    padding-bottom: 12px;
+    margin-bottom: 20px;
+  }
+  .electron-tabs {
+    gap: 23px;
+  }
+  .electron-tabs > button {
+    font-size: 11px;
+    min-height: 43px;
+  }
+  .electron-nuclei-toggle {
+    font-size: 10px;
+  }
+  .electron-lesson-layout {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 24px;
+  }
+  .electron-lesson-notes {
+    border-left: 0;
+    border-top: 1px solid #ffffff0b;
+    padding: 22px 0 0;
+  }
+  .electron-scene-heading h3 {
+    font-size: 26px;
+  }
+  .electron-scene-heading > p {
+    font-size: 11px;
+    margin-bottom: 15px;
+  }
+  .electron-viewport {
+    height: 330px;
+  }
+  .electron-viewport-label {
+    left: 14px;
+    top: 16px;
+    font-size: 7px;
+  }
+  .electron-viewport-footer {
+    left: 14px;
+    right: 14px;
+    font-size: 8px;
+  }
+  .electron-cloud-key {
+    font-size: 9px;
+  }
+  .electron-orbital-picker button {
+    min-height: 69px;
+  }
+  .electron-learning-copy h4 {
+    font-size: 23px;
+  }
+  .electron-model-note {
+    margin-top: 18px;
+  }
+  .electron-next-lesson {
+    min-height: 44px;
+  }
+  .electron-distance-presets button {
+    min-height: 38px;
+    padding: 8px 10px;
+    font-size: 10px;
+  }
+  .electron-separation-control input[type='range'] {
+    min-height: 28px;
+  }
+  .electron-method-details {
+    padding: 12px;
+  }
+  .electron-energy-curve text {
+    font-size: 11px;
+  }
+  .electron-energy-curve .energy-axis-title {
+    font-size: 10px;
+  }
+  .electron-lab-footer {
+    font-size: 9px;
+  }
+  .electron-nuclei-toggle {
+    min-height: 30px;
+  }
+  .electron-dialog .icon-button {
+    min-height: 36px;
+    min-width: 36px;
+  }
+}
