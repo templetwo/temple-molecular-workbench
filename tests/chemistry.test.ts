@@ -138,8 +138,9 @@ test('Hill formulas and molar masses are calculated from all atoms', () => {
   assert.equal(formulaOf([]), '');
   assert.equal(formulaOf(byPresetId.ethanol.atoms), 'C2H6O');
   assert.equal(formulaOf(byPresetId.ammonia.atoms), 'H3N');
-  near(molarMassOf(byPresetId.water.atoms), 18.015);
-  near(molarMassOf(byPresetId.benzene.atoms), 78.114);
+  near(molarMassOf(byPresetId.water.atoms).value ?? Number.NaN, 18.015);
+  near(molarMassOf(byPresetId.benzene.atoms).value ?? Number.NaN, 78.114);
+  assert.equal(molarMassOf(byPresetId.water.atoms).status, 'unverified');
 });
 
 test('defaults show benzene and retain isolated copies of presets', () => {

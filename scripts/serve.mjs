@@ -9,7 +9,7 @@ import { pipeline } from 'node:stream/promises';
 import { spawn } from 'node:child_process';
 
 export const APP_ID = 'temple-molecular-workbench';
-export const APP_VERSION = '1.1.0';
+export const APP_VERSION = '1.2.0';
 export const HEALTH_PATH = '/__temple_health';
 const DEFAULT_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '../dist');
 const HOST = '127.0.0.1';

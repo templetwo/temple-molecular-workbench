@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { bySymbol } from '@/data/elements';
+import { combineNumericQuantities, type Quantity } from '@/data/element-properties';
 import { byPresetId } from '@/data/molecules';
 
 export interface PlacedAtom {
@@ -469,7 +470,8 @@ export const useBench = createBenchStore();
 /** Covalent-radius-inspired display radius; not a measured atomic boundary. */
 export function atomRadius(sym: string): number {
   const el = bySymbol[sym];
-  return el ? 0.46 + 0.09 * (el.shells.length - 1) : 0.6;
+  const shells = el?.shells.value?.length ?? 1;
+  return el ? 0.46 + 0.09 * (shells - 1) : 0.6;
 }
 
 export function atomColor(sym: string): string {
@@ -491,6 +493,6 @@ export function formulaOf(atoms: PlacedAtom[]): string {
   return ordered.map((key) => key + (counts.get(key)! > 1 ? counts.get(key) : '')).join('');
 }
 
-export function molarMassOf(atoms: PlacedAtom[]): number {
-  return atoms.reduce((sum, atom) => sum + (bySymbol[atom.sym]?.mass ?? 0), 0);
+export function molarMassOf(atoms: PlacedAtom[]): Quantity<number> {
+  return combineNumericQuantities(atoms.map((atom) => bySymbol[atom.sym].mass));
 }

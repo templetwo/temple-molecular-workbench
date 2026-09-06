@@ -5,6 +5,7 @@
   <h1>Temple Molecular Workbench</h1>
   <p><strong>A space to explore, one bond at a time.</strong></p>
   <p>An interactive 3D chemistry studio for the curious.<br />Explore reference molecules, build structures, and see chemistry take shape.</p>
+  <p><em>Created by The Temple of Two in collaboration with Astra (OpenAI Codex).</em></p>
   <p>
     <a href="https://github.com/templetwo/temple-molecular-workbench/actions/workflows/ci.yml"><img src="https://github.com/templetwo/temple-molecular-workbench/actions/workflows/ci.yml/badge.svg" alt="CI" /></a>
     <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-d5f582?labelColor=202629" alt="MIT license" /></a>
@@ -27,7 +28,7 @@
 Start with benzene's ring, rotate methane's tetrahedron, or build a structure from the periodic table. A focused studio layout keeps the collection, the molecule, and its properties together.
 
 - **Six reference molecules.** Benzene, water, methane, ammonia, carbon dioxide, and ethanol, with geometry notes and source-backed coordinates.
-- **118 elements to explore.** Search by name, symbol, or atomic number; filter categories; inspect element properties and schematic atomic views.
+- **118 elements to explore.** Search by name, symbol, or atomic number; filter categories; inspect element properties with an explicit scientific status on each field.
 - **An editable 3D bench.** Move atoms, connect bonds, cycle single/double/triple bonds, and switch between ball-and-stick, illustrative space-fill, and wireframe views.
 - **An Electron Lab.** Explore hydrogen 1s, 2s, and 2p probability clouds, then bring two hydrogen nuclei together and compare their calculated electron density and energy. Your editable workspace stays unchanged.
 - **Structure insights.** Formula, molar mass, composition, connected fragments, bond distances, and advisory checks for common neutral valences.
@@ -132,7 +133,7 @@ The separate **Electron Lab** uses analytic nonrelativistic hydrogen orbitals an
 
 Atom radii, bond thicknesses, and the space-fill display are visual conventions. Electron-shell and lattice views are schematic. Bond distances measure the current coordinates. Common-valence notes are limited to selected neutral covalent atoms and do not determine chemical stability, formal charge, aromaticity, or metal coordination.
 
-Element properties in [`src/data/elements.ts`](src/data/elements.ts) were inherited from the original project and have **not been independently verified**. Some properties are missing or predicted. Molar masses use that dataset. A future data audit should establish per-property provenance, units, and uncertainty before these values are used as reference measurements.
+Element properties in [`src/data/elements.ts`](src/data/elements.ts) are compiled from the inherited dump plus explicit overlays. Each displayed field has a scientific status (measured/evaluated, calculated/predicted, unverified, or unavailable) separate from provenance. Unverified values are inherited and are not reference measurements. Unsupported numbers are withheld rather than guessed. Helium’s mass cites [CIAAW](https://ciaaw.org/helium.htm). Hassium’s inherited melting point and density are withheld because the [RSC table](https://periodic-table.rsc.org/element/108/hassium) lists them as unknown. Carbon density is withheld until an allotrope is specified. Molar-mass totals inherit the weakest mass status in the structure. See [element data notes](docs/ELEMENT-DATA.md). Passing the automated suites does not establish reference-data accuracy.
 
 Custom formulas use Hill ordering and total the entire bench, including disconnected fragments. Reference cards retain familiar formulas such as NH₃; the same custom composition is H₃N in Hill order.
 
@@ -150,7 +151,9 @@ A workspace supports **128 atoms**, **384 bond records**, and coordinates within
 | [`src/components/Bench3D.tsx`](src/components/Bench3D.tsx)         | Three.js scene, camera, representations, pointer interaction, WebGL fallback       |
 | [`src/state/store.ts`](src/state/store.ts)                         | Zustand state, history, validation, local persistence, formula and mass helpers    |
 | [`src/data/molecules.ts`](src/data/molecules.ts)                   | Reference molecules, lesson text, source links                                     |
-| [`src/data/elements.ts`](src/data/elements.ts)                     | Inherited periodic-table dataset                                                   |
+| [`src/data/elements.ts`](src/data/elements.ts)                     | Inherited dump plus compiled element records with status and provenance            |
+| [`src/data/element-properties.ts`](src/data/element-properties.ts) | Status/provenance types, presentation rules, and catalog compile                   |
+| [`docs/ELEMENT-DATA.md`](docs/ELEMENT-DATA.md)                     | Element-data methods, first-cut overlays, and remaining audit work                 |
 | [`src/lib/chemistry.ts`](src/lib/chemistry.ts)                     | Fragment analysis and advisory valence checks                                      |
 | [`src/components/ElectronLab.tsx`](src/components/ElectronLab.tsx) | Guided orbital and H₂ bonding lessons, energy curve, and accessible controls       |
 | [`src/lib/electrons.ts`](src/lib/electrons.ts)                     | Analytic orbital densities and bounded sampling of the calculated H₂ density       |
@@ -163,6 +166,6 @@ Built with React 19, TypeScript, Three.js, React Three Fiber, Drei, Zustand, Rad
 
 Chemistry corrections, focused interaction improvements, and accessible learning tools are welcome. Start with [the contribution guide](CONTRIBUTING.md) and [the review and roadmap](docs/REVIEW.md). Please include an authoritative source when changing scientific data or claims.
 
-Licensed under the [MIT License](LICENSE). © 2026 The Temple of Two.
+Created by The Temple of Two in collaboration with Astra (OpenAI Codex). Licensed under the [MIT License](LICENSE). © 2026 The Temple of Two.
 
 The bundled Node.js runtime retains its own license and third-party notices. The [logo kit](docs/BRANDING.md) includes editable SVG artwork and PNG exports.

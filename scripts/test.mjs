@@ -15,6 +15,9 @@ try {
     outdir: directory,
     outExtension: { '.js': '.mjs' },
     tsconfig: 'tsconfig.app.json',
+    banner: {
+      js: "import { createRequire } from 'node:module'; const require = createRequire(import.meta.url);",
+    },
   });
   const result = spawnSync(
     process.execPath,

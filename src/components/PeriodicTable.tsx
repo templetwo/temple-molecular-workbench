@@ -2,8 +2,10 @@ import { useRef, useState } from 'react';
 import * as Dialog from '@radix-ui/react-dialog';
 import { ArrowUpRight, Plus, Search, X } from 'lucide-react';
 import { ELEMENTS, bySymbol, type ElementData } from '@/data/elements';
+import { presentQuantity } from '@/data/element-properties';
 import { MAX_ATOMS, useBench } from '@/state/store';
 import { CAT_COLORS, catColor, addElementToBench } from '@/lib/element-library';
+import PropertyStatus from '@/components/PropertyStatus';
 
 function Cell({
   el,
@@ -64,6 +66,7 @@ export default function PeriodicTable() {
   const matching = ELEMENTS.filter(match);
   const selected =
     matching.find((el) => el.sym === selectedSym) ?? matching[0] ?? bySymbol[selectedSym];
+  const selectedMass = presentQuantity(selected.mass);
 
   function inspect() {
     setCard(selected.sym);
@@ -196,7 +199,8 @@ export default function PeriodicTable() {
                   </span>
                   <span className="mt-1 text-sm text-[#dce2da]">{selected.name}</span>
                   <span className="mt-1 font-mono text-[10px] text-[#88938b]">
-                    {selected.mass} u · {selected.cat}
+                    {selectedMass.text} · {selected.cat}
+                    <PropertyStatus presentation={selectedMass} />
                   </span>
                 </div>
                 <div
@@ -263,7 +267,8 @@ export default function PeriodicTable() {
                 <span className="ml-1 font-mono text-xs text-[#8e998f]">{selected.sym}</span>
               </p>
               <p className="mt-1 text-[10px] text-[#9ca69f]">
-                Atomic number {selected.n} · {selected.mass} u
+                Atomic number {selected.n} · {selectedMass.text}
+                <PropertyStatus presentation={selectedMass} />
               </p>
             </div>
             <button

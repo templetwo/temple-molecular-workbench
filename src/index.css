@@ -956,6 +956,56 @@ kbd {
   font: 8px var(--mono);
   letter-spacing: 0;
 }
+.property-status {
+  display: inline-block;
+  margin-left: 6px;
+  padding: 1px 5px;
+  border: 1px solid #ffffff14;
+  border-radius: 3px;
+  font: 8px var(--mono);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  vertical-align: middle;
+}
+.property-status[data-appearance='measured_evaluated'] {
+  color: var(--lime);
+  border-color: #d5f58255;
+}
+.property-status[data-appearance='calculated_predicted'] {
+  color: #8db5e5;
+  border-color: #8db5e555;
+}
+.property-status[data-appearance='unverified'] {
+  color: #d2c07a;
+  border-color: #d2c07a44;
+}
+.property-status[data-appearance='unavailable'] {
+  color: #7f8b80;
+  border-color: #ffffff10;
+}
+.property-meta {
+  display: inline;
+}
+.property-source {
+  margin-left: 6px;
+  color: #9eb4d4;
+  font: 8px var(--mono);
+  letter-spacing: 0.04em;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.property-source:hover {
+  color: #c5d7f0;
+}
+.property-detail {
+  display: block;
+  margin-top: 4px;
+  color: #7f8b80;
+  font: 9px/1.45 var(--mono);
+  letter-spacing: 0;
+  text-transform: none;
+  white-space: normal;
+}
 
 .inspector-panel {
   display: flex;
@@ -1118,6 +1168,9 @@ kbd {
 .composition-row small {
   color: #8b9f7e;
   font: 9px var(--mono);
+}
+.composition-row small .property-status {
+  margin-left: 4px;
 }
 .composition-count {
   font: 10px var(--mono);

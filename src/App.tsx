@@ -33,6 +33,8 @@ import { dropBridge } from '@/lib/dropBridge';
 import { useBench, formulaOf, molarMassOf, atomColor, MAX_ATOMS, type Mode } from '@/state/store';
 import { MOLECULE_PRESETS, byPresetId, type MoleculePreset } from '@/data/molecules';
 import { bySymbol } from '@/data/elements';
+import { presentQuantity } from '@/data/element-properties';
+import PropertyStatus from '@/components/PropertyStatus';
 import { analyzeStructure } from '@/lib/chemistry';
 import { addElementToBench } from '@/lib/element-library';
 import '@/components/electron-lab.css';
@@ -131,6 +133,11 @@ export default function App() {
   const selected = s.atoms.find((a) => a.id === s.selectedId);
   const formula = formulaOf(s.atoms);
   const analysis = analyzeStructure(s.atoms, s.bonds);
+  const molarMass = molarMassOf(s.atoms);
+  const molarMassView = presentQuantity(molarMass, {
+    digits: molarMass.status === 'measured_evaluated' ? undefined : 3,
+    unitSuffix: '',
+  });
   const visiblePresets = MOLECULE_PRESETS.filter((p) =>
     `${p.name} ${p.formula} ${p.category}`.toLowerCase().includes(query.toLowerCase()),
   );
@@ -705,8 +712,9 @@ export default function App() {
             <div>
               <span>MOLAR MASS</span>
               <strong>
-                {s.atoms.length ? molarMassOf(s.atoms).toFixed(3) : '—'}
+                {s.atoms.length ? molarMassView.text : '—'}
                 <small>g/mol</small>
+                {s.atoms.length ? <PropertyStatus presentation={molarMassView} /> : null}
               </strong>
             </div>
           </div>
@@ -763,21 +771,27 @@ export default function App() {
                 <div className="section-title">
                   ELEMENT BREAKDOWN<span>{new Set(s.atoms.map((a) => a.sym)).size}</span>
                 </div>
-                {Array.from(new Set(s.atoms.map((a) => a.sym))).map((sym) => (
-                  <button className="composition-row" key={sym} onClick={() => s.setCard(sym)}>
-                    <span className="element-square" style={{ color: atomColor(sym) }}>
-                      {sym}
-                    </span>
-                    <span>
-                      <strong>{bySymbol[sym]?.name}</strong>
-                      <small>{bySymbol[sym]?.mass} u</small>
-                    </span>
-                    <span className="composition-count">
-                      ×{s.atoms.filter((a) => a.sym === sym).length}
-                    </span>
-                    <ChevronRight size={13} />
-                  </button>
-                ))}
+                {Array.from(new Set(s.atoms.map((a) => a.sym))).map((sym) => {
+                  const massView = presentQuantity(bySymbol[sym].mass);
+                  return (
+                    <button className="composition-row" key={sym} onClick={() => s.setCard(sym)}>
+                      <span className="element-square" style={{ color: atomColor(sym) }}>
+                        {sym}
+                      </span>
+                      <span>
+                        <strong>{bySymbol[sym]?.name}</strong>
+                        <small>
+                          {massView.text}
+                          <PropertyStatus presentation={massView} />
+                        </small>
+                      </span>
+                      <span className="composition-count">
+                        ×{s.atoms.filter((a) => a.sym === sym).length}
+                      </span>
+                      <ChevronRight size={13} />
+                    </button>
+                  );
+                })}
               </section>
               {selected && (
                 <section className="selected-atom">

@@ -1,7 +1,7 @@
 {
   "name": "temple-molecular-workbench",
   "private": true,
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "A beautifully interactive 3D chemistry workbench for exploring molecules and building structures.",
   "license": "MIT",
   "author": "The Temple of Two",
@@ -23,7 +23,7 @@
     "test:electrons": "node tests/electrons-browser.mjs",
     "test:packaged": "node tests/packaged-browser.mjs && node tests/electrons-browser.mjs --production",
     "check": "npm test && npm run lint && npm run build",
-    "format": "prettier --write src/App.tsx src/components/Bench3D.tsx src/components/PeriodicTable.tsx src/components/ElementCard.tsx src/state/store.ts src/data/molecules.ts src/lib/chemistry.ts src/lib/element-library.ts src/index.css tests scripts *.md docs/*.md",
+    "format": "prettier --write src/App.tsx src/components/Bench3D.tsx src/components/PeriodicTable.tsx src/components/ElementCard.tsx src/components/PropertyStatus.tsx src/state/store.ts src/data/molecules.ts src/data/element-properties.ts src/data/element-overlays.ts src/lib/chemistry.ts src/lib/element-library.ts src/index.css tests scripts *.md docs/*.md",
     "icons": "node scripts/build-icons.mjs",
     "start": "node scripts/serve.mjs --open",
     "bundle:mac": "npm run build && node scripts/build-macos.mjs"

@@ -33,7 +33,7 @@ Keep one model coordinate unit equal to one ångström. Record authoritative sou
 
 Use NIST data, IUPAC terminology, primary literature, or another clearly identified authoritative source. Do not infer that a graph is stable because it passes the common-valence checks. Charges, radicals, resonance, coordination chemistry, and calculated energetics need an explicit model before they can be claimed as supported.
 
-The inherited element dataset still needs a provenance and uncertainty audit. A correction should identify the original field, replacement value, units, reference, and whether the value is measured, predicted, or unavailable.
+Element fields have an explicit scientific status and a separate provenance. A correction should identify the original field, replacement value, units, reference, and status (`measured_evaluated`, `calculated_predicted`, `unverified`, or `unavailable`). Do not relabel an unsupported inherited number as predicted. Do not infer predicted or calculated status from a minus sign. Add a regression test when changing status rules or overlays. See [element data notes](docs/ELEMENT-DATA.md).
 
 ## Reports and pull requests
 
