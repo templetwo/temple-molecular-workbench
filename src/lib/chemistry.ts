@@ -19,7 +19,7 @@ const COMMON_NEUTRAL_VALENCE: Readonly<Record<string, number>> = {
 export function analyzeStructure(
   atoms: PlacedAtom[],
   bonds: Bond[],
-): { components: number; warnings: string[] } {
+): { components: number; warnings: string[]; checkedAtoms: number; uncheckedSymbols: string[] } {
   const warnings: string[] = [];
   const adjacency = new Map(atoms.map((atom) => [atom.id, new Set<string>()]));
   const totals = new Map(atoms.map((atom) => [atom.id, 0]));
@@ -74,8 +74,14 @@ export function analyzeStructure(
     );
 
   const unusual = new Map<string, number>();
+  let checkedAtoms = 0;
+  const uncheckedSymbols = new Set<string>();
   for (const atom of atoms) {
-    if (!Object.hasOwn(COMMON_NEUTRAL_VALENCE, atom.sym)) continue;
+    if (!Object.hasOwn(COMMON_NEUTRAL_VALENCE, atom.sym)) {
+      uncheckedSymbols.add(atom.sym);
+      continue;
+    }
+    checkedAtoms++;
     const usual = COMMON_NEUTRAL_VALENCE[atom.sym];
     const total = totals.get(atom.id)!;
     if (total !== usual) {
@@ -85,5 +91,10 @@ export function analyzeStructure(
   }
   for (const [message, count] of unusual)
     warnings.push(count > 1 ? `${count} atoms — ${message}` : message);
-  return { components, warnings: [...new Set(warnings)] };
+  return {
+    components,
+    warnings: [...new Set(warnings)],
+    checkedAtoms,
+    uncheckedSymbols: [...uncheckedSymbols].sort(),
+  };
 }

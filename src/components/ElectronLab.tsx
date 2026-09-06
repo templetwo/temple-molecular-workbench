@@ -218,17 +218,17 @@ export default function ElectronLab() {
   const bondLesson =
     region === 'close'
       ? {
-          title: 'Closer is not always better.',
-          text: 'As the nuclei are pushed too close, the total energy rises sharply. Nuclear repulsion and the electronic energy together set the shape of this curve.',
+          title: 'Compressed configurations.',
+          text: 'Below the sampled minimum separation, further compression raises this model’s total energy. Nuclear repulsion and electronic energy together set the shape of the curve.',
         }
       : region === 'minimum'
         ? {
-            title: 'A balance that makes a bond.',
+            title: 'The lowest sampled energy.',
             text: 'This is the lowest-energy separation among the calculated samples. In this model, the bonded arrangement is lower in energy than two separated hydrogen atoms.',
           }
         : {
-            title: 'Follow the energy toward a bond.',
-            text: 'Move the nuclei closer and watch the electron density reorganize. The energy curve—not simply the amount of cloud overlap—tells us whether that arrangement is energetically favorable.',
+            title: 'Compare density and energy.',
+            text: 'Each separation has its own calculated density. The curve—not cloud overlap alone—shows whether that arrangement has lower energy than separated H atoms in this model.',
           };
   return (
     <Tabs.Root value={lesson} onValueChange={setLesson} className="electron-lab">
@@ -238,7 +238,7 @@ export default function ElectronLab() {
             <span>01</span> Atomic orbitals
           </Tabs.Trigger>
           <Tabs.Trigger value="bond" ref={bondTab}>
-            <span>02</span> A bond forms
+            <span>02</span> H₂ bonding
           </Tabs.Trigger>
         </Tabs.List>
         <label className="electron-nuclei-toggle">
@@ -321,7 +321,7 @@ export default function ElectronLab() {
                 bondTab.current?.focus();
               }}
             >
-              Next: see a bond form <ArrowRight size={15} />
+              Next: explore H₂ bonding <ArrowRight size={15} />
             </button>
           </aside>
         </div>
@@ -332,9 +332,12 @@ export default function ElectronLab() {
             <div className="electron-scene-heading">
               <span className="eyebrow">A PRECOMPUTED QUANTUM-CHEMISTRY LESSON</span>
               <h3>
-                Two atoms. <span>A shared state.</span>
+                H₂ bonding. <span>Density & energy.</span>
               </h3>
-              <p>Change the nuclear separation. Watch density and energy together.</p>
+              <p data-testid="bond-static-note">
+                Precomputed at fixed nuclear separations: stationary density, not a reaction
+                trajectory.
+              </p>
             </div>
             <SceneFrame
               mode="bond"
@@ -414,8 +417,15 @@ export default function ElectronLab() {
               <p>{bondLesson.text}</p>
             </div>
             <div className="electron-minimum-note">
-              <Check size={14} /> Sampled minimum: {minimum.distanceAngstrom.toFixed(2)} Å ·{' '}
-              {minimum.relativeEnergyEv.toFixed(3)} eV
+              <Check size={14} />
+              <span>
+                Sampled minimum: {minimum.distanceAngstrom.toFixed(2)} Å ·{' '}
+                {minimum.relativeEnergyEv.toFixed(3)} eV
+                <br />
+                <span data-testid="bond-energy-caveat">
+                  Model result, not an experimental binding energy.
+                </span>
+              </span>
             </div>
           </aside>
         </div>

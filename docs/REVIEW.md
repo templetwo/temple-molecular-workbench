@@ -26,7 +26,7 @@ The separate Electron Lab adds analytic hydrogen 1s/2s/2p probability clouds and
 
 The lab keeps its orbital, lesson, and separation controls separate from editable workspace state. The main 3D canvas is unmounted while the lab is open to avoid retaining two heavy active views. Clouds render on demand; dialog focus handling and keyboard guards keep lesson controls from editing the bench. Orbital explanations and the energy curve remain available without WebGL. The formulas, calculation limitations, generator, data provenance, and numerical validation are documented in [Electron Lab scientific notes](ELECTRON-SCIENCE.md).
 
-## Verification recorded
+## Historical verification — 1.0.0 / 1.1.0
 
 The chemistry/state suite contains **16 passing regression tests** at the time of this review. It verifies all six preset compositions; selected reference bond lengths and angles; benzene planarity and equal ring distances; ethanol geometry; formula and mass calculations; undo/redo behavior; drag coalescing; malformed import rejection; persistence recovery; and broken graph analysis. The full ESLint check, TypeScript compilation, and Vite production build pass.
 
@@ -46,6 +46,18 @@ The build retains a roughly 911 KB uncompressed shared Three/Fiber chunk (about 
 
 Use `npm test`, `npm run lint`, and `npm run build` to verify the current checkout. GitHub Actions repeats the automated checks and browser suites on pushes to `main`; see the [live CI status](https://github.com/templetwo/temple-molecular-workbench/actions/workflows/ci.yml) for the current result. The counts above record completed local checks, not a claim that every browser interaction or every inherited scientific value has been verified.
 
+## Current verification — 1.2.0, September 6, 2026
+
+The current source passes **93 automated regression tests: 76 chemistry, electron, element-property, component, bonding-guide, and state tests, plus 17 launcher tests**. ESLint, TypeScript compilation, and the Vite production build pass. The historical 36-test count above applies to 1.1.0, not this checkout.
+
+The 13 existing workbench workflows and 7 Electron Lab workflows pass in Chromium. The **7 new bonding-coach workflows pass in Chromium, Firefox, and Playwright WebKit**, with external networking blocked. They cover exact connectivity versus composition-only matches, disconnected components, unchecked elements, stepwise single/double bonds, correction and undo/redo, clean mass totals and accessible citations, rendered camera preservation across Electron Lab, a 390px viewport, and deliberately unavailable WebGL. WebKit coverage is not a claim of testing the installed Safari application or mobile hardware. Desktop and mobile guide screenshots were inspected.
+
+Recognition compares element labels and bond orders against the six existing reference graphs, independently of atom IDs, array order, and geometry. Tests include same-formula isomers, alternate benzene Kekulé drawings, malformed graphs, and a changed or removed bond in every reference. Guided builds retain the existing workspace schema and separate drawing edits from loading reference geometry. See [the guide's methods and limits](BONDING-GUIDE.md).
+
+The reliability pass corrects scalar mass-total formatting, preserves separate source links, exposes the coverage of the limited valence checker, keeps the H₂ fixed-nuclei and non-experimental caveats visible, asserts package/server version parity, and removes only verified empty successful-build staging directories. Copernicium's unsupported inherited boiling point is withheld with an RSC citation. H/C/N/O interval-valued atomic weights remain deferred until the quantity schema can represent intervals without substituting a midpoint.
+
+The local **1.2.0 Apple Silicon app was rebuilt, launched, and relaunched**, with the health endpoint confirming 1.2.0 and the second launch reusing the running workbench. All **19 packaged Chromium workflows** pass: 5 offline workbench, 7 Electron Lab, and 7 bonding-coach checks. The 37.2 MiB ZIP matches its manifest SHA-256, prior 1.1.0 outputs are preserved in `release/.previous/build-sDBaKA/`, and no successful-build staging skeletons remain. This is a local unsigned, unnotarized build; these checks do not claim a GitHub release or notarized distribution.
+
 ## Scientific scope
 
 The reference geometry sources are listed in [the README](../README.md#the-chemistry) and beside the data in [`src/data/molecules.ts`](../src/data/molecules.ts). They include [NIST CCCBDB](https://cccbdb.nist.gov/) and the [IUPAC definition of aromaticity](https://goldbook.iupac.org/terms/view/A00442).
@@ -61,7 +73,7 @@ Element properties now carry per-field scientific status and provenance ([elemen
 The following are proposed directions, not implemented features or release commitments.
 
 1. **Finish the element-data audit.** First cut (1.2.0): status/provenance, helium mass, withheld hassium melt/density and carbon density, non-inference tests. Remaining: CIAAW masses with preserved uncertainty, allotrope-qualified densities, sourced electron-affinity sign conventions.
-2. **Expand browser regression coverage.** Extend the existing Chrome workflows to Firefox and Safari, and add deeper pointer-cancellation/context-loss tests. Measure performance on representative mobile hardware before setting performance targets. Do this before another substantial lesson.
+2. **Expand browser regression coverage.** The bonding-coach workflows now pass in Firefox and WebKit as well as Chromium. Extend that engine coverage to the full workbench/Electron Lab suites, test installed Safari, and add deeper pointer-cancellation/context-loss tests. Measure performance on representative mobile hardware before setting performance targets. Do this before another substantial lesson.
 3. **Expand geometric editing tools.** Numeric coordinate editing is available. Predictable placement plus explicit axis constraints is preferable to scattering new atoms in 3D. Selection-based angle/dihedral measurement would need clear units and undo behavior.
 4. **Broaden chemical representation.** Design charge, isotope, radical, and aromatic-bond semantics before adding file formats or validation that depend on them. Keep the existing versioned workspace format compatible through explicit migrations.
 5. **Extend guided lessons.** Hydrogen orbitals and calculated H₂ bonding are available. Next lesson, after Safari/Firefox verification: water polarity, with schematic lone pairs kept distinct from calculated density or electrostatic potential. No live solver on arbitrary drawings.

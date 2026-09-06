@@ -2,6 +2,11 @@
 
 ## 1.2.0 — 2026-09-06
 
+- Added Bonding coach: six-reference connectivity recognition, inventory-only suggestions, and guided 3D builds with numbered atoms, next-pair rings, and undoable bond/order edits. Reference geometry loading remains explicit; no reaction prediction or workspace-schema change.
+- Fixed scalar mass-sum display precision, separate citation links, and nested/hidden citation controls. Copernicium's unsupported inherited boiling point is withheld with its RSC source.
+- Preserved the bench camera across Electron Lab visits; common-valence summaries now expose coverage. H₂ stationary-calculation and nonexperimental-energy caveats are always visible.
+- Added safe successful-stage cleanup and package/server version-parity guards; recovery backups are preserved.
+
 - Element properties now carry an explicit scientific status (measured/evaluated, calculated/predicted, unverified, unavailable) separate from provenance (inherited, cited, withheld).
 - The inspector and molar-mass total cannot present a number as measured unless the record is cited. Missing metadata is unavailable.
 - Helium’s atomic mass uses the CIAAW standard weight 4.002 602(2). The inherited `4.0026022` is kept in the dump as evidence that uncertainty notation had been flattened.

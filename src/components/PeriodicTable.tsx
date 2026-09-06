@@ -200,7 +200,7 @@ export default function PeriodicTable() {
                   <span className="mt-1 text-sm text-[#dce2da]">{selected.name}</span>
                   <span className="mt-1 font-mono text-[10px] text-[#88938b]">
                     {selectedMass.text} · {selected.cat}
-                    <PropertyStatus presentation={selectedMass} />
+                    <PropertyStatus presentation={selectedMass} compact />
                   </span>
                 </div>
                 <div

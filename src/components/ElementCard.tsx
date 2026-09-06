@@ -157,6 +157,7 @@ export function ElementInspector({
                 presentation={{
                   appearance: 'unverified',
                   badge: 'Unverified',
+                  sources: [],
                   text: el.block,
                   shownValue: el.block,
                 }}

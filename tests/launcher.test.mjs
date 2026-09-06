@@ -1,12 +1,73 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import http from 'node:http';
-import { mkdtemp, mkdir, writeFile, readFile, readdir, rename, symlink, rm } from 'node:fs/promises';
+import { mkdtemp, mkdir, writeFile, readFile, readdir, rename, symlink, rm, lstat } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { spawn } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { createWorkbenchServer, startWorkbenchServer, APP_ID, APP_VERSION, HEALTH_PATH } from '../scripts/serve.mjs';
+import { assertAppVersion, cleanupPublishedStage } from '../scripts/macos-build-safety.mjs';
+
+test('package metadata and the exported launcher health version stay in sync', async () => {
+  const metadata = JSON.parse(await readFile(new URL('../package.json', import.meta.url), 'utf8'));
+  assert.equal(metadata.version, APP_VERSION);
+  assert.doesNotThrow(() => assertAppVersion(metadata.version, APP_VERSION));
+  for (const invalid of ['0.0.0-mismatch', '', undefined, 12]) {
+    assert.throws(() => assertAppVersion(invalid, APP_VERSION), /App version mismatch/);
+  }
+});
+
+test('successful publication removes only its empty stage and preserves output and recovery backups', async (t) => {
+  const { temporary } = await fixture(t);
+  const release = join(temporary, 'release');
+  const previous = join(release, '.previous', 'build-recovery');
+  await mkdir(previous, { recursive: true });
+  await writeFile(join(previous, 'backup.zip'), 'recoverable previous output');
+  await writeFile(join(release, 'bundle-manifest.json'), 'published output');
+  const stage = await mkdtemp(join(release, '.temple-build-'));
+  await mkdir(join(stage, 'Temple Lab'));
+  await cleanupPublishedStage(stage, release);
+  await assert.rejects(lstat(stage), { code: 'ENOENT' });
+  assert.equal(await readFile(join(previous, 'backup.zip'), 'utf8'), 'recoverable previous output');
+  assert.equal(await readFile(join(release, 'bundle-manifest.json'), 'utf8'), 'published output');
+  assert.deepEqual((await readdir(release)).sort(), ['.previous', 'bundle-manifest.json']);
+});
+
+test('stage cleanup preserves all files when publication is incomplete or unexpected content exists', async (t) => {
+  const { temporary } = await fixture(t);
+  const release = join(temporary, 'release');
+  await mkdir(release);
+  for (const fileLocation of ['Temple Lab', '']) {
+    const stage = await mkdtemp(join(release, '.temple-build-'));
+    const payload = join(stage, 'Temple Lab');
+    await mkdir(payload);
+    const leftover = join(stage, fileLocation, 'keep.txt');
+    await writeFile(leftover, 'must remain recoverable');
+    await assert.rejects(cleanupPublishedStage(stage, release), /still contains files/);
+    assert.equal(await readFile(leftover, 'utf8'), 'must remain recoverable');
+    assert.ok((await lstat(payload)).isDirectory());
+  }
+});
+
+test('stage cleanup rejects recovery paths, outside targets, and symlinks', async (t) => {
+  const { temporary } = await fixture(t);
+  const release = join(temporary, 'release');
+  const previous = join(release, '.previous');
+  await mkdir(previous, { recursive: true });
+  await assert.rejects(cleanupPublishedStage(previous, release), /exact generated/);
+  const outside = await mkdtemp(join(temporary, '.temple-build-'));
+  await mkdir(join(outside, 'Temple Lab'));
+  await assert.rejects(cleanupPublishedStage(outside, release), /exact generated/);
+  const linkedStage = join(release, '.temple-build-AbCd12');
+  await symlink(outside, linkedStage, 'dir');
+  await assert.rejects(cleanupPublishedStage(linkedStage, release), /symlink/);
+  const stage = await mkdtemp(join(release, '.temple-build-'));
+  await symlink(join(outside, 'Temple Lab'), join(stage, 'Temple Lab'), 'dir');
+  await assert.rejects(cleanupPublishedStage(stage, release), /symlink/);
+  assert.ok((await lstat(previous)).isDirectory());
+  assert.ok((await lstat(join(outside, 'Temple Lab'))).isDirectory());
+});
 
 async function fixture(t) {
   const temporary = await mkdtemp(join(tmpdir(), 'temple-launcher-tests-'));

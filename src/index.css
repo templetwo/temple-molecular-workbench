@@ -1006,6 +1006,9 @@ kbd {
   text-transform: none;
   white-space: normal;
 }
+.mass-source-details { margin-top: 13px; padding: 10px 0; border-top: 1px solid #ffffff0a; font-size: 10px; color: #a3b89a; }
+.mass-source-details summary { cursor: pointer; margin-bottom: 6px; }
+.property-source { overflow-wrap: anywhere; }
 
 .inspector-panel {
   display: flex;

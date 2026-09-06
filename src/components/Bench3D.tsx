@@ -7,6 +7,7 @@ import {
   useRef,
   useState,
   type ReactNode,
+  type RefObject,
 } from 'react';
 import { Canvas, useThree, type ThreeEvent } from '@react-three/fiber';
 import { Billboard, Environment, Grid, Html, Lightformer, OrbitControls } from '@react-three/drei';
@@ -32,6 +33,22 @@ const ACCENT = '#d5f582';
 const BACKGROUND = '#181c1e';
 const MAX_COORDINATE = 100;
 const ignoreRaycast = () => {};
+
+export interface BenchViewMemory {
+  position: [number, number, number];
+  target: [number, number, number];
+  near: number;
+  far: number;
+  maxDistance: number;
+  resetToken: number;
+  width: number;
+  height: number;
+}
+interface BenchOptions {
+  highlightedAtomIds?: string[];
+  numberedLabels?: boolean;
+  viewMemoryRef?: RefObject<BenchViewMemory | null>;
+}
 
 function displayRadius(sym: string, style: DisplayStyle) {
   const radius = atomRadius(sym);
@@ -245,6 +262,8 @@ const AtomMesh = memo(function AtomMesh({
   labels,
   selected,
   source,
+  hinted,
+  label,
   onAtomDown,
   onHover,
 }: {
@@ -253,6 +272,8 @@ const AtomMesh = memo(function AtomMesh({
   labels: boolean;
   selected: boolean;
   source: boolean;
+  hinted: boolean;
+  label: string;
   onAtomDown: (event: ThreeEvent<PointerEvent>, atom: PlacedAtom) => void;
   onHover: (hovering: boolean) => void;
 }) {
@@ -280,16 +301,16 @@ const AtomMesh = memo(function AtomMesh({
           clearcoat={0.85}
           clearcoatRoughness={0.2}
           envMapIntensity={0.65}
-          emissive={source || selected ? ACCENT : '#000000'}
-          emissiveIntensity={source ? 0.22 : selected ? 0.08 : 0}
+          emissive={source || selected ? ACCENT : hinted ? '#80ddea' : '#000000'}
+          emissiveIntensity={source ? 0.22 : selected || hinted ? 0.08 : 0}
         />
       </mesh>
-      {(selected || source) && (
+      {(selected || source || hinted) && (
         <Billboard>
           <mesh raycast={ignoreRaycast}>
             <ringGeometry args={[radius * 1.17, radius * 1.17 + 0.025, 64]} />
             <meshBasicMaterial
-              color={ACCENT}
+              color={source || selected ? ACCENT : '#80ddea'}
               transparent
               opacity={source ? 1 : 0.8}
               side={THREE.DoubleSide}
@@ -320,7 +341,7 @@ const AtomMesh = memo(function AtomMesh({
               border: '1px solid #ffffff12',
             }}
           >
-            {atom.sym}
+            {label}
           </span>
         </Html>
       )}
@@ -389,17 +410,60 @@ const BondMesh = memo(function BondMesh({
   );
 });
 
-function CameraRig() {
+function CameraRig({ viewMemoryRef }: Pick<BenchOptions, 'viewMemoryRef'>) {
   const resetViewToken = useBench((state) => state.resetViewToken);
   const autoRotate = useBench((state) => state.autoRotate);
   const getScene = useThree((state) => state.get);
   const activeControls = useThree((state) => state.controls);
   const size = useThree((state) => state.size);
   const invalidate = useThree((state) => state.invalidate);
+  const initialized = useRef(false);
+  const appliedViewRequest = useRef<string | null>(null);
+  const remember = useCallback(() => {
+    if (!initialized.current || !viewMemoryRef) return;
+    const scene = getScene();
+    const controls = scene.controls as unknown as SceneControls | null;
+    if (!controls || !(scene.camera instanceof THREE.PerspectiveCamera)) return;
+    viewMemoryRef.current = {
+      position: scene.camera.position.toArray(),
+      target: controls.target.toArray(),
+      near: scene.camera.near,
+      far: scene.camera.far,
+      maxDistance: controls.maxDistance,
+      resetToken: resetViewToken,
+      width: size.width,
+      height: size.height,
+    };
+  }, [getScene, viewMemoryRef, resetViewToken, size.width, size.height]);
   useEffect(() => {
     const camera = getScene().camera;
     const controls = getScene().controls as unknown as SceneControls | null;
     if (!controls || !(camera instanceof THREE.PerspectiveCamera)) return;
+    const request = `${resetViewToken}:${size.width}:${size.height}`;
+    // StrictMode and makeDefault registration can replay initialization. Neither
+    // should refit a camera we just restored for the same view request.
+    if (appliedViewRequest.current === request) return;
+    appliedViewRequest.current = request;
+    const saved = viewMemoryRef?.current;
+    if (
+      !initialized.current &&
+      saved &&
+      saved.resetToken === resetViewToken &&
+      saved.width === size.width &&
+      saved.height === size.height
+    ) {
+      camera.position.fromArray(saved.position);
+      camera.near = saved.near;
+      camera.far = saved.far;
+      camera.updateProjectionMatrix();
+      controls.target.fromArray(saved.target);
+      controls.maxDistance = saved.maxDistance;
+      controls.update();
+      initialized.current = true;
+      remember();
+      invalidate();
+      return;
+    }
     const { atoms, displayStyle } = useBench.getState();
     const bounds = new THREE.Box3();
     for (const atom of atoms) {
@@ -428,11 +492,23 @@ function CameraRig() {
     controls.target.copy(center);
     controls.maxDistance = Math.max(60, distance * 4);
     controls.update();
+    initialized.current = true;
+    remember();
     invalidate();
-  }, [getScene, activeControls, invalidate, resetViewToken, size.width, size.height]);
+  }, [
+    getScene,
+    activeControls,
+    invalidate,
+    resetViewToken,
+    size.width,
+    size.height,
+    remember,
+    viewMemoryRef,
+  ]);
   return (
     <OrbitControls
       makeDefault
+      onChange={remember}
       enableDamping
       dampingFactor={0.09}
       rotateSpeed={0.7}
@@ -510,7 +586,11 @@ const StudioLighting = memo(function StudioLighting() {
   );
 });
 
-function MoleculeScene() {
+function MoleculeScene({
+  highlightedAtomIds = [],
+  numberedLabels = false,
+  viewMemoryRef,
+}: BenchOptions) {
   const atoms = useBench((state) => state.atoms);
   const bonds = useBench((state) => state.bonds);
   const selectedId = useBench((state) => state.selectedId);
@@ -566,19 +646,21 @@ function MoleculeScene() {
           <BondMesh key={bond.id} bond={bond} a={a} b={b} style={displayStyle} />
         ) : null;
       })}
-      {atoms.map((atom) => (
+      {atoms.map((atom, index) => (
         <AtomMesh
           key={atom.id}
           atom={atom}
           style={displayStyle}
-          labels={showLabels}
+          labels={showLabels || numberedLabels}
+          label={numberedLabels ? `${atom.sym}${index + 1}` : atom.sym}
+          hinted={highlightedAtomIds.includes(atom.id)}
           selected={selectedId === atom.id}
           source={bondSourceId === atom.id}
           onAtomDown={onAtomDown}
           onHover={onHover}
         />
       ))}
-      <CameraRig />
+      <CameraRig viewMemoryRef={viewMemoryRef} />
     </>
   );
 }
@@ -669,7 +751,7 @@ function supportsWebGL() {
   }
 }
 
-export default function Bench3D() {
+export default function Bench3D(options: BenchOptions) {
   const autoRotate = useBench((state) => state.autoRotate);
   const [generation, setGeneration] = useState(0);
   const [contextLost, setContextLost] = useState(() => !supportsWebGL());
@@ -699,7 +781,7 @@ export default function Bench3D() {
           aria-label="Interactive 3D molecule. Drag atoms to move; drag empty space to orbit; scroll to zoom."
         >
           <ContextGuard onContextLost={onContextLost} />
-          <MoleculeScene />
+          <MoleculeScene {...options} />
         </Canvas>
       )}
     </SceneBoundary>

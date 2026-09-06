@@ -55,6 +55,8 @@ export interface BenchState extends SceneSnapshot, DisplaySettings {
   undo: () => void;
   redo: () => void;
   loadPreset: (id: string) => void;
+  startGuidedBuild: (id: string) => void;
+  setBondOrder: (a: string, b: string, order: Bond['order']) => void;
   setDisplayStyle: (style: DisplayStyle) => void;
   toggleLabels: () => void;
   toggleGrid: () => void;
@@ -397,6 +399,45 @@ export function createBenchStore(storage: SceneStorage | null = browserStorage()
         if (!Object.hasOwn(byPresetId, id)) return;
         commit(presetScene(id), true);
         set((state) => ({ resetViewToken: state.resetViewToken + 1 }));
+      },
+      startGuidedBuild: (id) => {
+        if (!Object.hasOwn(byPresetId, id)) return;
+        const reference = presetScene(id);
+        const center = [0, 1, 2].map(
+          (axis) =>
+            reference.atoms.reduce((sum, atom) => sum + atom.pos[axis], 0) / reference.atoms.length,
+        );
+        // Expanded reference layout for legible practice, never an optimized geometry.
+        const atoms = reference.atoms.map((atom) => ({
+          ...atom,
+          pos: atom.pos.map(
+            (value, axis) => center[axis] + (value - center[axis]) * 1.8,
+          ) as PlacedAtom['pos'],
+        }));
+        commit({ atoms, bonds: [], activePresetId: null }, true);
+        set((state) => ({ mode: 'bond', resetViewToken: state.resetViewToken + 1 }));
+      },
+      setBondOrder: (a, b, order) => {
+        const state = get();
+        if (
+          a === b ||
+          ![1, 2, 3].includes(order) ||
+          !state.atoms.some((atom) => atom.id === a) ||
+          !state.atoms.some((atom) => atom.id === b)
+        )
+          return;
+        const existing = state.bonds.find(
+          (bond) => (bond.a === a && bond.b === b) || (bond.a === b && bond.b === a),
+        );
+        if (existing?.order === order || (!existing && state.bonds.length >= MAX_BONDS)) return;
+        commit({
+          atoms: state.atoms,
+          bonds: existing
+            ? state.bonds.map((bond) => (bond.id === existing.id ? { ...bond, order } : bond))
+            : [...state.bonds, { id: newId(), a, b, order }],
+          activePresetId: null,
+        });
+        set({ bondSourceId: null });
       },
       undo: () => {
         endMove();

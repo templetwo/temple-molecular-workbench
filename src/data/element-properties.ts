@@ -31,7 +31,10 @@ const STATUS_RANK: Record<ScientificStatus, number> = {
 
 export interface PropertyContext {
   units?: string;
+  /** Scalar absolute uncertainty only; intervals require a separate future representation. */
   uncertainty?: string;
+  /** Decimal places retained from the supplied values, not a claim of new precision. */
+  displayDecimals?: number;
   precisionNote?: string;
   temperatureK?: number;
   pressurePa?: number;
@@ -43,7 +46,9 @@ export interface Quantity<T> {
   value: T | null;
   status: ScientificStatus;
   provenance: ProvenanceKind;
+  /** Legacy input form. Compiled records and derived quantities use sources instead. */
   source?: string;
+  sources?: string[];
   context?: PropertyContext;
   withheldReason?: string;
 }
@@ -129,7 +134,7 @@ export interface Presentation {
   badge: string;
   text: string;
   shownValue: number | string | number[] | null;
-  source?: string;
+  sources: string[];
   detail?: string;
   reason?: string;
 }
@@ -165,10 +170,65 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value);
 }
 
+/** Keep citation targets independently addressable and safe to render as links. */
+export function safeSourceUrl(input: unknown): input is string {
+  if (typeof input !== 'string' || !/^https?:\/\//i.test(input) || /\s/.test(input)) return false;
+  try {
+    const url = new URL(input);
+    return (
+      (url.protocol === 'https:' || url.protocol === 'http:') && !url.username && !url.password
+    );
+  } catch {
+    return false;
+  }
+}
+
+function sourcesOf(input: { source?: string; sources?: string[] }): string[] {
+  return [...new Set([...(input.sources ?? []), ...(input.source ? [input.source] : [])])];
+}
+
+function canonicalQuantity<T>(input: Quantity<T>): Quantity<T> {
+  const quantity = { ...input, sources: sourcesOf(input) };
+  delete quantity.source;
+  return quantity;
+}
+
 export function quantityError(input: unknown): string | null {
   if (!isRecord(input)) return 'Property metadata is missing.';
   if (!isStatus(input.status)) return 'Scientific status is missing or unknown.';
   if (!isProvenance(input.provenance)) return 'Provenance is missing or unknown.';
+  if (input.source !== undefined && !safeSourceUrl(input.source)) {
+    return 'Each source must be a separate, valid HTTP(S) citation URL.';
+  }
+  if (
+    input.sources !== undefined &&
+    (!Array.isArray(input.sources) || !input.sources.every(safeSourceUrl))
+  ) {
+    return 'Each source must be a separate, valid HTTP(S) citation URL.';
+  }
+  if (input.context !== undefined) {
+    if (!isRecord(input.context)) return 'Property context must be an object.';
+    const decimals = input.context.displayDecimals;
+    if (
+      decimals !== undefined &&
+      (typeof decimals !== 'number' ||
+        !Number.isInteger(decimals) ||
+        decimals < 0 ||
+        decimals > 100)
+    ) {
+      return 'Display decimal places must be an integer from 0 to 100.';
+    }
+    const uncertainty = input.context.uncertainty;
+    if (
+      uncertainty !== undefined &&
+      (typeof uncertainty !== 'string' ||
+        !/^(?:\d+(?:\.\d*)?|\.\d+)(?:e[+-]?\d+)?$/i.test(uncertainty) ||
+        !Number.isFinite(Number(uncertainty)) ||
+        Number(uncertainty) < 0)
+    ) {
+      return 'Numeric uncertainty must be finite and nonnegative.';
+    }
+  }
   if (input.provenance === 'withheld') {
     if (input.status !== 'unavailable') return 'Withheld properties must be unavailable.';
     if (input.value !== null && input.value !== undefined) {
@@ -188,8 +248,8 @@ export function quantityError(input: unknown): string | null {
     if (input.provenance !== 'cited') {
       return `${input.status} requires cited provenance, not ${input.provenance}.`;
     }
-    if (typeof input.source !== 'string' || input.source.trim().length === 0) {
-      return `${input.status} requires a non-empty source.`;
+    if (sourcesOf(input as unknown as Quantity<unknown>).length === 0) {
+      return `${input.status} requires at least one source.`;
     }
     if (input.value === null || input.value === undefined) {
       return `${input.status} requires a value.`;
@@ -245,7 +305,7 @@ export function withheld(reason: string, source?: string): Quantity<number> {
     value: null,
     status: 'unavailable',
     provenance: 'withheld',
-    source,
+    sources: source ? [source] : [],
     withheldReason: reason,
   };
 }
@@ -282,6 +342,7 @@ export function presentQuantity(input: unknown, options: PresentOptions = {}): P
       badge: STATUS_LABEL.unavailable,
       text: 'Not available',
       shownValue: null,
+      sources: [],
       reason: error,
     };
   }
@@ -297,7 +358,7 @@ export function presentQuantity(input: unknown, options: PresentOptions = {}): P
       badge: STATUS_LABEL.unavailable,
       text: 'Not available',
       shownValue: null,
-      source: quantity.source,
+      sources: sourcesOf(quantity),
       detail: detailOf(quantity),
       reason: quantity.withheldReason ?? 'No supported value is available.',
     };
@@ -310,7 +371,11 @@ export function presentQuantity(input: unknown, options: PresentOptions = {}): P
       : '');
   let text: string;
   if (typeof quantity.value === 'number') {
-    text = formatNumber(quantity.value, options.digits, quantity.context?.uncertainty);
+    text = formatNumber(
+      quantity.value,
+      quantity.context?.displayDecimals ?? options.digits,
+      quantity.context?.uncertainty,
+    );
     if (unit) text = `${text} ${unit}`.trim();
   } else if (Array.isArray(quantity.value)) {
     text = quantity.value.join(' · ');
@@ -324,7 +389,7 @@ export function presentQuantity(input: unknown, options: PresentOptions = {}): P
     badge: STATUS_LABEL[quantity.status],
     text,
     shownValue: quantity.value,
-    source: quantity.source,
+    sources: sourcesOf(quantity),
     detail: detailOf(quantity),
   };
 }
@@ -334,6 +399,47 @@ export function weakestStatus(statuses: ScientificStatus[]): ScientificStatus {
   return statuses.reduce((weakest, status) =>
     STATUS_RANK[status] < STATUS_RANK[weakest] ? status : weakest,
   );
+}
+
+function decimalPlaces(value: number | string): number {
+  const [coefficient, exponent = '0'] = String(value).toLowerCase().split('e');
+  return Math.max(0, Math.min(100, (coefficient.split('.')[1]?.length ?? 0) - Number(exponent)));
+}
+
+function sumContext(parts: Quantity<number>[]): PropertyContext {
+  const displayDecimals = Math.min(
+    ...parts.map((part) => {
+      if (part.context?.displayDecimals !== undefined) return part.context.displayDecimals;
+      return decimalPlaces(
+        part.context?.uncertainty && Number(part.context.uncertainty) > 0
+          ? part.context.uncertainty
+          : (part.value as number),
+      );
+    }),
+  );
+  const allUncertainties = parts.every((part) => part.context?.uncertainty !== undefined);
+  const sameUncertaintyResolution =
+    allUncertainties &&
+    new Set(parts.map((part) => decimalPlaces(part.context!.uncertainty!))).size === 1;
+  // Repeated atoms share the same source quantity: do not assume independent errors
+  // and shrink the uncertainty by using a root-sum-of-squares calculation.
+  const uncertainty = sameUncertaintyResolution
+    ? parts.reduce((sum, part) => sum + Number(part.context!.uncertainty), 0)
+    : undefined;
+  const uncertaintyNote =
+    uncertainty !== undefined && Number.isFinite(uncertainty)
+      ? 'Uncertainties are added linearly, including repeated uses of the same atomic mass; no independence assumption or new confidence level is assigned.'
+      : allUncertainties
+        ? 'No total uncertainty is assigned to inputs with different uncertainty resolutions; consult the individual source records.'
+        : 'No total uncertainty is supplied because not every input provides a numeric uncertainty.';
+  return {
+    units: 'u',
+    displayDecimals,
+    ...(uncertainty !== undefined && Number.isFinite(uncertainty)
+      ? { uncertainty: uncertainty.toFixed(displayDecimals) }
+      : {}),
+    precisionNote: `Arithmetic sum of supplied atomic masses, not a new measurement. Display rounded to the least precise supplied decimal place; extra precision is not inferred. ${uncertaintyNote}`,
+  };
 }
 
 export function combineNumericQuantities(parts: Quantity<number>[]): Quantity<number> {
@@ -352,15 +458,23 @@ export function combineNumericQuantities(parts: Quantity<number>[]): Quantity<nu
     }
   }
   const value = parts.reduce((sum, part) => sum + (part.value as number), 0);
+  if (!Number.isFinite(value)) {
+    return {
+      value: null,
+      status: 'unavailable',
+      provenance: 'inherited',
+      withheldReason: 'The mass total is outside the supported finite numeric range.',
+    };
+  }
   const status = weakestStatus(parts.map((part) => part.status));
   const cited = parts.every((part) => part.provenance === 'cited');
-  const sources = [...new Set(parts.map((part) => part.source).filter(Boolean))];
+  const sources = [...new Set(parts.flatMap(sourcesOf))];
   return {
     value,
     status,
     provenance: cited ? 'cited' : 'inherited',
-    context: { units: 'u' },
-    source: cited ? sources.join(' · ') : undefined,
+    context: sumContext(parts),
+    sources,
   };
 }
 
@@ -375,13 +489,13 @@ export function outerPopulation(shells: Quantity<number[]>): Quantity<number> {
       value: null,
       status: 'unavailable',
       provenance: shells.provenance,
-      source: shells.source,
+      sources: sourcesOf(shells),
       context: shells.context,
       withheldReason: shells.withheldReason,
     };
   }
   return {
-    ...shells,
+    ...canonicalQuantity(shells),
     value: shells.value[shells.value.length - 1],
   };
 }
@@ -433,6 +547,7 @@ export function compileElement(raw: InheritedElement, overlay: ElementOverlay = 
   for (const field of QUANTITY_FIELDS) {
     const error = quantityError(compiled[field]);
     if (error) throw new Error(`${raw.sym}.${field}: ${error}`);
+    compiled[field] = canonicalQuantity(compiled[field] as Quantity<unknown>) as never;
   }
   return compiled;
 }

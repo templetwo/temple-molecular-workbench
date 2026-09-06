@@ -1,4 +1,4 @@
-import { lazy, Suspense, useEffect, useRef, useState } from 'react';
+import { lazy, Suspense, useEffect, useMemo, useRef, useState } from 'react';
 import {
   Atom,
   ArrowDownToLine,
@@ -35,6 +35,9 @@ import { MOLECULE_PRESETS, byPresetId, type MoleculePreset } from '@/data/molecu
 import { bySymbol } from '@/data/elements';
 import { presentQuantity } from '@/data/element-properties';
 import PropertyStatus from '@/components/PropertyStatus';
+import BondingGuide from '@/components/BondingGuide';
+import { analyzeBonding, getBondingProgress } from '@/lib/bonding-guide';
+import type { BenchViewMemory } from '@/components/Bench3D';
 import { analyzeStructure } from '@/lib/chemistry';
 import { addElementToBench } from '@/lib/element-library';
 import '@/components/electron-lab.css';
@@ -125,6 +128,8 @@ export default function App() {
   const [mobileLibrary, setMobileLibrary] = useState(false);
   const [help, setHelp] = useState(false);
   const [electronLab, setElectronLab] = useState(false);
+  const [guidedPresetId, setGuidedPresetId] = useState<string | null>(null);
+  const benchView = useRef<BenchViewMemory | null>(null);
   const [notice, setNotice] = useState('');
   const fileInput = useRef<HTMLInputElement>(null);
   const viewport = useRef<HTMLDivElement>(null);
@@ -133,9 +138,27 @@ export default function App() {
   const selected = s.atoms.find((a) => a.id === s.selectedId);
   const formula = formulaOf(s.atoms);
   const analysis = analyzeStructure(s.atoms, s.bonds);
+  const bonding = useMemo(() => analyzeBonding(s.atoms, s.bonds), [s.atoms, s.bonds]);
+  const guideProgress = useMemo(
+    () => (guidedPresetId ? getBondingProgress(guidedPresetId, s.atoms, s.bonds) : null),
+    [guidedPresetId, s.atoms, s.bonds],
+  );
+  const guidePaused = Boolean(
+    guideProgress &&
+    (guideProgress.missingAtomIds.length ||
+      guideProgress.extraAtomIds.length ||
+      guideProgress.status === 'invalid'),
+  );
+  const guideStep = guidePaused
+    ? null
+    : (guideProgress?.wrongBonds[0] ?? guideProgress?.missingBonds[0]);
+  const highlightedAtoms = useMemo(
+    () => (guideStep ? [guideStep.a, guideStep.b] : []),
+    [guideStep],
+  );
   const molarMass = molarMassOf(s.atoms);
   const molarMassView = presentQuantity(molarMass, {
-    digits: molarMass.status === 'measured_evaluated' ? undefined : 3,
+    digits: 3,
     unitSuffix: '',
   });
   const visiblePresets = MOLECULE_PRESETS.filter((p) =>
@@ -238,6 +261,20 @@ export default function App() {
     window.setTimeout(() => URL.revokeObjectURL(url), 1000);
     setNotice('Workspace exported. Import it any time to continue.');
   }
+  function startGuide(id: string) {
+    s.startGuidedBuild(id);
+    setGuidedPresetId(id);
+    setNotice(`${byPresetId[id].name} practice atoms ready. Each connection is undoable.`);
+  }
+  function applyGuideStep() {
+    if (!guideProgress || guidePaused) return;
+    const wrong = guideProgress.wrongBonds[0];
+    const missing = guideProgress.missingBonds[0];
+    if (wrong) {
+      if (wrong.expectedOrder === null) s.removeBond(wrong.bondId);
+      else s.setBondOrder(wrong.a, wrong.b, wrong.expectedOrder);
+    } else if (missing) s.setBondOrder(missing.a, missing.b, missing.order);
+  }
   return (
     <div className="app-shell">
       <a href="#workbench" className="skip-link">
@@ -339,6 +376,7 @@ export default function App() {
             }
             try {
               const result = s.importScene(await file.text());
+              if (result.ok) setGuidedPresetId(null);
               setNotice(
                 result.ok
                   ? 'Workspace imported. Ready to explore.'
@@ -414,6 +452,7 @@ export default function App() {
                     className={`molecule-card ${p.id === s.activePresetId ? 'selected' : ''}`}
                     onClick={() => {
                       s.loadPreset(p.id);
+                      setGuidedPresetId(null);
                       setMobileLibrary(false);
                     }}
                     aria-pressed={p.id === s.activePresetId}
@@ -553,7 +592,13 @@ export default function App() {
                 </div>
               }
             >
-              {!electronLab && <Bench3D />}
+              {!electronLab && (
+                <Bench3D
+                  highlightedAtomIds={highlightedAtoms}
+                  numberedLabels={Boolean(guidedPresetId)}
+                  viewMemoryRef={benchView}
+                />
+              )}
             </Suspense>
             <div className="viewport-topline">
               <span>
@@ -630,6 +675,20 @@ export default function App() {
                 </button>
               </div>
             )}
+            {guidedPresetId && guideStep && (
+              <div className="bonding-scene-hint" aria-hidden="true">
+                <span>
+                  GUIDED CONNECTION ·{' '}
+                  {highlightedAtoms
+                    .map((id) => {
+                      const index = s.atoms.findIndex((atom) => atom.id === id);
+                      return `${s.atoms[index]?.sym ?? '?'}${index + 1}`;
+                    })
+                    .join(' ↔ ')}
+                  <small>Blue rings are a drawing hint, not a calculated interaction.</small>
+                </span>
+              </div>
+            )}
             <div className="viewport-bottomline">
               <span>
                 <Rotate3D size={15} />
@@ -691,7 +750,7 @@ export default function App() {
           <div className="mode-hint" aria-live="polite">
             <span className="hint-dot" />
             {s.bondSourceId
-              ? 'First atom selected. Choose a second atom to form a bond.'
+              ? 'First atom selected. Choose a second atom to draw a bond.'
               : modeHint}
           </div>
           <div className="stats-strip">
@@ -714,7 +773,7 @@ export default function App() {
               <strong>
                 {s.atoms.length ? molarMassView.text : '—'}
                 <small>g/mol</small>
-                {s.atoms.length ? <PropertyStatus presentation={molarMassView} /> : null}
+                {s.atoms.length ? <PropertyStatus presentation={molarMassView} compact /> : null}
               </strong>
             </div>
           </div>
@@ -733,6 +792,25 @@ export default function App() {
             </Suspense>
           ) : (
             <div className="inspector-content">
+              <BondingGuide
+                analysis={bonding}
+                atoms={s.atoms}
+                guideId={guidedPresetId}
+                progress={guideProgress}
+                bondSourceId={s.bondSourceId}
+                onStart={startGuide}
+                onStop={() => setGuidedPresetId(null)}
+                onStep={applyGuideStep}
+                onAtom={(id) => {
+                  if (useBench.getState().mode !== 'bond') s.setMode('bond');
+                  s.clickAtomBond(id);
+                }}
+                onReference={(id) => {
+                  s.loadPreset(id);
+                  setGuidedPresetId(null);
+                  setNotice('Reference geometry loaded. Undo restores your practice drawing.');
+                }}
+              />
               <div className="inspector-hero">
                 <span className="inspector-formula">
                   <Formula value={preset?.formula ?? (formula || '—')} />
@@ -757,6 +835,12 @@ export default function App() {
                   <strong>Ångström (Å)</strong>
                 </div>
               </div>
+              {s.atoms.length > 0 && (
+                <details className="mass-source-details">
+                  <summary>Mass total · sources & precision</summary>
+                  <PropertyStatus presentation={molarMassView} />
+                </details>
+              )}
               <section className="insight-card">
                 <div>
                   <BookOpen size={15} />
@@ -782,7 +866,7 @@ export default function App() {
                         <strong>{bySymbol[sym]?.name}</strong>
                         <small>
                           {massView.text}
-                          <PropertyStatus presentation={massView} />
+                          <PropertyStatus presentation={massView} compact />
                         </small>
                       </span>
                       <span className="composition-count">
@@ -857,7 +941,10 @@ export default function App() {
                     <ChevronRight size={13} />
                   </span>
                 </summary>
-                <p className="measurement-note">Distances follow your model coordinates.</p>
+                <p className="measurement-note">
+                  Drawn connections. Distances follow your model coordinates, not a predicted bond
+                  length.
+                </p>
                 {s.bonds.map((b) => {
                   const a = s.atoms.find((x) => x.id === b.a),
                     z = s.atoms.find((x) => x.id === b.b);
@@ -892,15 +979,30 @@ export default function App() {
               </details>
               <div className={`structure-check ${analysis.warnings.length ? 'has-notes' : ''}`}>
                 <div>
-                  {analysis.warnings.length ? <CircleHelp size={14} /> : <Check size={14} />}
+                  {analysis.warnings.length ||
+                  analysis.uncheckedSymbols.length ||
+                  !analysis.checkedAtoms ? (
+                    <CircleHelp size={14} />
+                  ) : (
+                    <Check size={14} />
+                  )}
                   <span>
                     {analysis.warnings.length
                       ? `${analysis.warnings.length} bonding note${analysis.warnings.length === 1 ? '' : 's'}`
                       : s.atoms.length
-                        ? 'No common-valence flags'
+                        ? analysis.checkedAtoms
+                          ? `No flags among ${analysis.checkedAtoms} checked atoms`
+                          : 'Common-valence checks apply to none of these atoms'
                         : 'Ready for your first atom'}
                   </span>
                 </div>
+                {analysis.uncheckedSymbols.length > 0 && (
+                  <p>
+                    {analysis.checkedAtoms} / {s.atoms.length} atoms checked.{' '}
+                    {analysis.uncheckedSymbols.join(', ')} not checked by these neutral-valence
+                    rules.
+                  </p>
+                )}
                 {analysis.warnings.map((w, i) => (
                   <p key={i}>{w}</p>
                 ))}

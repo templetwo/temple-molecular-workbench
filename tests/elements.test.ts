@@ -95,7 +95,7 @@ test('helium inherited mass flattened CIAAW uncertainty; compiled mass is the ci
   const helium = bySymbol.He.mass;
   assert.equal(helium.status, 'measured_evaluated');
   assert.equal(helium.provenance, 'cited');
-  assert.equal(helium.source, CIAAW_HELIUM);
+  assert.deepEqual(helium.sources, [CIAAW_HELIUM]);
   assert.equal(helium.value, 4.002602);
   assert.equal(helium.context?.uncertainty, '0.000002');
   const view = presentQuantity(helium);
@@ -111,7 +111,7 @@ test('hassium melting point is withheld, not relabeled as predicted', () => {
   assert.equal(melt.status, 'unavailable');
   assert.equal(melt.provenance, 'withheld');
   assert.equal(melt.value, null);
-  assert.equal(melt.source, RSC_HASSIUM);
+  assert.deepEqual(melt.sources, [RSC_HASSIUM]);
   const view = presentQuantity(melt);
   assert.equal(view.appearance, 'unavailable');
   assert.equal(view.shownValue, null);
@@ -246,11 +246,11 @@ test('cited calculated masses keep cited provenance when aggregated', () => {
   assert.equal(total.value, 3);
   assert.equal(total.status, 'calculated_predicted');
   assert.equal(total.provenance, 'cited');
-  assert.equal(total.source, 'https://example.org/mass');
+  assert.deepEqual(total.sources, ['https://example.org/mass']);
   const view = presentQuantity(total);
   assert.equal(view.appearance, 'calculated_predicted');
   assert.equal(view.shownValue, 3);
-  assert.equal(view.source, 'https://example.org/mass');
+  assert.deepEqual(view.sources, ['https://example.org/mass']);
 });
 
 test('outer-shell count keeps the parent shells scientific status', () => {
@@ -271,5 +271,136 @@ test('catalog compile keeps 118 elements and applies only named overlays', () =>
   const compiled = compileElements(INHERITED_ELEMENTS, ELEMENT_OVERLAYS);
   assert.equal(compiled.length, 118);
   assert.equal(compiled.filter((el) => el.mass.status === 'measured_evaluated').length, 1);
-  assert.equal(bySymbol.He.mass.source, CIAAW_HELIUM);
+  assert.deepEqual(bySymbol.He.mass.sources, [CIAAW_HELIUM]);
+});
+
+test('three helium masses retain source precision without floating-point display noise', () => {
+  const total = molarMassOf([atom('He'), atom('He'), atom('He')]);
+  const view = presentQuantity(total);
+  assert.equal(view.text, '12.007806(6) u');
+  assert.equal(total.context?.displayDecimals, 6);
+  assert.equal(total.context?.uncertainty, '0.000006');
+  assert.deepEqual(view.sources, [CIAAW_HELIUM]);
+  assert.match(view.detail ?? '', /added linearly/);
+  assert.match(view.detail ?? '', /repeated uses/);
+  assert.match(view.detail ?? '', /no independence assumption/i);
+  assert.match(view.detail ?? '', /not a new measurement/);
+  assert.doesNotMatch(view.text, /000000002/);
+});
+
+test('mass sum display uses input decimal places instead of a universal six-decimal cap', () => {
+  const fine: Quantity<number> = {
+    value: 1.23456789,
+    status: 'calculated_predicted',
+    provenance: 'cited',
+    sources: ['https://example.org/fine'],
+  };
+  const coarse: Quantity<number> = {
+    value: 2.5,
+    status: 'measured_evaluated',
+    provenance: 'cited',
+    sources: ['https://example.org/coarse'],
+  };
+  const fineTotal = combineNumericQuantities([fine, fine, fine]);
+  assert.equal(presentQuantity(fineTotal, { digits: 3 }).text, '3.70370367 u');
+  assert.equal(fineTotal.context?.uncertainty, undefined);
+  assert.match(presentQuantity(fineTotal).detail ?? '', /No total uncertainty/);
+
+  const mixed = combineNumericQuantities([fine, coarse]);
+  assert.equal(presentQuantity(mixed).text, '3.7 u');
+  assert.equal(mixed.status, 'calculated_predicted');
+  assert.equal(mixed.provenance, 'cited');
+  assert.deepEqual(mixed.sources, ['https://example.org/fine', 'https://example.org/coarse']);
+});
+
+test('explicit source decimal places retain justified trailing zeros on sums', () => {
+  const part: Quantity<number> = {
+    value: 1.5,
+    status: 'calculated_predicted',
+    provenance: 'cited',
+    sources: ['https://example.org/mass'],
+    context: { displayDecimals: 3 },
+  };
+  assert.equal(presentQuantity(combineNumericQuantities([part, part])).text, '3.000 u');
+  assert.equal(
+    presentQuantity(combineNumericQuantities([{ ...part, context: undefined }, part])).text,
+    '3.0 u',
+  );
+});
+
+test('mixed and legacy citations remain separate, deduplicated and available with weaker status', () => {
+  const evaluated: Quantity<number> = {
+    value: 1.25,
+    status: 'measured_evaluated',
+    provenance: 'cited',
+    source: 'https://example.org/first',
+    sources: ['https://example.org/second', 'https://example.org/first'],
+  };
+  const legacy = compileElement(fixture, { mass: evaluated }).mass;
+  assert.deepEqual(legacy.sources, ['https://example.org/second', 'https://example.org/first']);
+  assert.equal(legacy.source, undefined);
+  const mixed = combineNumericQuantities([
+    evaluated,
+    { value: 2, status: 'unverified', provenance: 'inherited' },
+  ]);
+  assert.equal(mixed.status, 'unverified');
+  assert.equal(mixed.provenance, 'inherited');
+  assert.deepEqual(presentQuantity(mixed).sources, legacy.sources);
+});
+
+test('unsafe, malformed and joined citation URLs fail closed', () => {
+  for (const source of [
+    'javascript:alert(1)',
+    'data:text/html,test',
+    'file:///private/test',
+    'https:example.org',
+    'https://example.org/first · https://example.org/second',
+    'https://user:password@example.org',
+    '',
+  ]) {
+    const input = {
+      value: 4,
+      status: 'measured_evaluated',
+      provenance: 'cited',
+      sources: [source],
+    };
+    assert.match(quantityError(input) ?? '', /citation URL/);
+    assert.equal(presentQuantity(input).appearance, 'unavailable');
+    assert.deepEqual(presentQuantity(input).sources, []);
+  }
+});
+
+test('non-finite sums and invalid source precision cannot produce measured totals', () => {
+  const part: Quantity<number> = {
+    value: Number.MAX_VALUE,
+    status: 'measured_evaluated',
+    provenance: 'cited',
+    sources: ['https://example.org/mass'],
+  };
+  assert.equal(presentQuantity(combineNumericQuantities([part, part])).appearance, 'unavailable');
+  for (const context of [
+    { displayDecimals: -1 },
+    { displayDecimals: 101 },
+    { displayDecimals: Number.NaN },
+    { uncertainty: 'Infinity' },
+    { uncertainty: '-0.01' },
+    { uncertainty: '[1.00784, 1.00811]' },
+    { uncertainty: '0x2' },
+  ]) {
+    assert.equal(presentQuantity({ ...part, value: 1, context }).appearance, 'unavailable');
+  }
+});
+
+test('different uncertainty resolutions are not silently assigned a derived confidence', () => {
+  const coarse: Quantity<number> = {
+    value: 2,
+    status: 'measured_evaluated',
+    provenance: 'cited',
+    sources: ['https://example.org/coarse'],
+    context: { uncertainty: '1' },
+  };
+  const fine = { ...coarse, value: 3.2, context: { uncertainty: '0.1' } };
+  const combined = combineNumericQuantities([coarse, fine]);
+  assert.equal(combined.context?.uncertainty, undefined);
+  assert.match(presentQuantity(combined).detail ?? '', /different uncertainty resolutions/);
 });

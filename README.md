@@ -30,6 +30,7 @@ Start with benzene's ring, rotate methane's tetrahedron, or build a structure fr
 - **Six reference molecules.** Benzene, water, methane, ammonia, carbon dioxide, and ethanol, with geometry notes and source-backed coordinates.
 - **118 elements to explore.** Search by name, symbol, or atomic number; filter categories; inspect element properties with an explicit scientific status on each field.
 - **An editable 3D bench.** Move atoms, connect bonds, cycle single/double/triple bonds, and switch between ball-and-stick, illustrative space-fill, and wireframe views.
+- **A bonding coach.** Identify matching reference bond patterns, see inventory-based possibilities, or build a known molecule with numbered atoms, 3D hints, and undoable steps. Recognition is not reaction prediction.
 - **An Electron Lab.** Explore hydrogen 1s, 2s, and 2p probability clouds, then bring two hydrogen nuclei together and compare their calculated electron density and energy. Your editable workspace stays unchanged.
 - **Structure insights.** Formula, molar mass, composition, connected fragments, bond distances, and advisory checks for common neutral valences.
 - **Room to experiment.** Undo and redo up to 50 structural edits, including atom drags, imported molecules, preset changes, and a cleared bench.
@@ -80,6 +81,7 @@ Open the address printed by Vite, normally **http://127.0.0.1:5173**. Choose a m
 | `npm run preview`       | Preview the production build locally                          |
 | `npm run check`         | Run regression tests, lint, and the production build          |
 | `npm run test:e2e`      | Verify real browser workflows against a running local server  |
+| `npm run test:bonding`  | Check reference recognition and guided bonding workflows      |
 | `npm run test:packaged` | Verify the offline production app at `127.0.0.1:5178`         |
 
 For browser tests, start `npm run dev` in another terminal. The test runner uses locally installed Google Chrome when available; otherwise run `npx playwright install chromium` once. Failure screenshots are written to `test-results/`. To refresh the workbench screenshots, use `node tests/browser.mjs --screenshot`; Electron Lab captures use `node tests/electrons-browser.mjs --screenshot`. The Electron Lab suite also accepts `TEST_BASE_URL` for checking a production build without source imports.
@@ -108,7 +110,7 @@ The viewport also has controls for automatic rotation, labels, and the reference
 
 For keyboard editing, open **Your atoms** and choose an atom. Its X/Y/Z fields apply on Enter or when leaving the field. In Bond or Erase mode, the same atom-list buttons connect or remove atoms.
 
-Open **Electron lab** in the header for two separate learning views. Select a hydrogen orbital, drag its cloud to rotate, or switch to **A bond forms** and move the nuclear-separation slider. The slider supports arrow keys and Home/End. **Show nuclei** toggles enlarged reference markers; Escape closes the lab and returns to the workbench. The orbital descriptions and bond-energy curve remain usable without WebGL.
+Open **Electron lab** in the header for two separate learning views. Select a hydrogen orbital, drag its cloud to rotate, or switch to **H₂ bonding** and move the nuclear-separation slider. The slider supports arrow keys and Home/End. **Show nuclei** toggles enlarged reference markers; Escape closes the lab and returns to the workbench. The orbital descriptions and bond-energy curve remain usable without WebGL.
 
 ## The chemistry
 
@@ -136,6 +138,14 @@ Atom radii, bond thicknesses, and the space-fill display are visual conventions.
 Element properties in [`src/data/elements.ts`](src/data/elements.ts) are compiled from the inherited dump plus explicit overlays. Each displayed field has a scientific status (measured/evaluated, calculated/predicted, unverified, or unavailable) separate from provenance. Unverified values are inherited and are not reference measurements. Unsupported numbers are withheld rather than guessed. Helium’s mass cites [CIAAW](https://ciaaw.org/helium.htm). Hassium’s inherited melting point and density are withheld because the [RSC table](https://periodic-table.rsc.org/element/108/hassium) lists them as unknown. Carbon density is withheld until an allotrope is specified. Molar-mass totals inherit the weakest mass status in the structure. See [element data notes](docs/ELEMENT-DATA.md). Passing the automated suites does not establish reference-data accuracy.
 
 Custom formulas use Hill ordering and total the entire bench, including disconnected fragments. Reference cards retain familiar formulas such as NH₃; the same custom composition is H₃N in Hill order.
+
+## Try guided bonding
+
+In **Structure insights → Bonding coach**, choose Water and select **Start guided build**. Connect the highlighted atoms in 3D, use the numbered controls, or add the suggested bond. The coach explains matching connectivity, missing connections, and bond orders. Starting a guide replaces the bench; Undo restores it. Loading reference geometry is a separate action.
+
+![Guided water bonding with numbered atoms and suggested connections](docs/bonding-coach.png)
+
+See [bonding methods and boundaries](docs/BONDING-GUIDE.md). Atom inventories alone do not predict which substances will react or what products they will form.
 
 ## Workspace files
 

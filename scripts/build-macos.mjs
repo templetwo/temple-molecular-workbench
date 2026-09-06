@@ -3,6 +3,8 @@ import { spawnSync } from 'node:child_process';
 import { access, chmod, copyFile, cp, lstat, mkdir, mkdtemp, readFile, readdir, realpath, rename, stat, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { APP_VERSION } from './serve.mjs';
+import { assertAppVersion, cleanupPublishedStage } from './macos-build-safety.mjs';
 
 const projectRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const sourceRoot = path.join(projectRoot, 'packaging', 'macos');
@@ -110,6 +112,7 @@ async function main() {
   const [major, minor] = process.versions.node.split('.').map(Number);
   if (major < 22 || (major === 22 && minor < 12)) throw new Error('Building requires Node.js 22.12 or newer.');
   const metadata = JSON.parse(await readFile(path.join(projectRoot, 'package.json'), 'utf8'));
+  assertAppVersion(metadata.version, APP_VERSION);
   const runtime = await realpath(process.execPath);
   const nodeLicense = await locateNodeLicense(runtime);
   const icon = path.join(sourceRoot, 'AppIcon.icns');
@@ -177,6 +180,7 @@ async function main() {
   for (const name of ['Temple Lab.app', 'QUICK-START.md', 'LICENSE']) await rename(path.join(payload, name), path.join(outputRoot, name));
   await rename(archive, path.join(outputRoot, archiveName));
   await rename(path.join(stage, 'bundle-manifest.json'), path.join(outputRoot, 'bundle-manifest.json'));
+  await cleanupPublishedStage(stage, outputRoot);
   console.log(`Ready: release/Temple Lab.app\nReady: release/${archiveName} (${(publishedManifest.archiveBytes / 1024 / 1024).toFixed(1)} MB)\nNative ${process.arch}; macOS ${minMacOS}+; bundled Node.js ${process.versions.node}.\nPreserved ${frontendNotices} frontend dependency notices and the complete Node license.`);
   if (previous) console.log(`Previous generated outputs preserved at ${path.relative(projectRoot, previous)}.`);
 }

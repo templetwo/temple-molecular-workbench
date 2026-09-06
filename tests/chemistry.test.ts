@@ -74,7 +74,12 @@ test('six presets have their stated composition, one connected graph, and common
   };
   for (const preset of MOLECULE_PRESETS) {
     assert.deepEqual(atomCounts(preset.atoms), expected[preset.id]);
-    assert.deepEqual(analyzeStructure(preset.atoms, preset.bonds), { components: 1, warnings: [] });
+    assert.deepEqual(analyzeStructure(preset.atoms, preset.bonds), {
+      components: 1,
+      warnings: [],
+      checkedAtoms: preset.atoms.length,
+      uncheckedSymbols: [],
+    });
     near(
       preset.atoms.reduce((sum, atom) => sum + atom.pos[0], 0),
       0,
@@ -369,5 +374,10 @@ test('structure analysis handles disconnected and broken graphs without making s
   assert.match(result.warnings.join(' '), /same pair/);
   assert.match(result.warnings.join(' '), /H: bond-order total 2/);
   assert.doesNotMatch(result.warnings.join(' '), /Fe:|unstable|stable/);
-  assert.deepEqual(analyzeStructure([], []), { components: 0, warnings: [] });
+  assert.deepEqual(analyzeStructure([], []), {
+    components: 0,
+    warnings: [],
+    checkedAtoms: 0,
+    uncheckedSymbols: [],
+  });
 });

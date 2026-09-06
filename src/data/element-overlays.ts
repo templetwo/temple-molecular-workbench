@@ -2,6 +2,7 @@ import { withheld, type ElementOverlay, type Quantity } from './element-properti
 
 export const CIAAW_HELIUM = 'https://ciaaw.org/helium.htm';
 export const RSC_HASSIUM = 'https://periodic-table.rsc.org/element/108/hassium';
+export const RSC_COPERNICIUM = 'https://periodic-table.rsc.org/element/112/copernicium';
 
 const heliumMass: Quantity<number> = {
   value: 4.002602,
@@ -18,6 +19,12 @@ const heliumMass: Quantity<number> = {
 
 export const ELEMENT_OVERLAYS: Record<string, ElementOverlay> = {
   He: { mass: heliumMass },
+  Cn: {
+    boil: withheld(
+      'Inherited boiling point 3570 K is withheld. The Royal Society of Chemistry lists this property as unknown. No decimal correction or predicted value is inferred.',
+      RSC_COPERNICIUM,
+    ),
+  },
   C: {
     density: withheld(
       'Inherited density 1.821 had no allotrope. Graphite, diamond, and amorphous carbon differ, so a single density is not displayed.',

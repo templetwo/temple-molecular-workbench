@@ -264,6 +264,20 @@ async function check(name, action) {
   console.log(`PASS ${name}`);
 }
 
+async function assertVisibleBondCaveats(modal) {
+  assert.equal(await modal.locator('.electron-method-details').getAttribute('open'), null);
+  const stationary = modal.getByTestId('bond-static-note');
+  const energy = modal.getByTestId('bond-energy-caveat');
+  assert.equal(await stationary.isVisible(), true);
+  assert.equal(await energy.isVisible(), true);
+  assert.match(await stationary.innerText(), /Precomputed at fixed nuclear separations/);
+  assert.match(await stationary.innerText(), /stationary density, not a reaction trajectory/);
+  assert.match(await energy.innerText(), /not an experimental binding energy/);
+  for (const caveat of [stationary, energy]) {
+    assert.equal(await caveat.evaluate((element) => element.closest('details') === null), true);
+  }
+}
+
 try {
   console.log(`Opening Electron Lab browser checks at ${baseURL}`);
   await page.goto(baseURL, { waitUntil: 'networkidle' });
@@ -428,7 +442,8 @@ try {
   await check(
     'the H2 slider, energy curve, and density use the calculated 25-point model',
     async () => {
-      await dialog.getByRole('tab', { name: /A bond forms$/ }).click();
+      await dialog.getByRole('tab', { name: /H₂ bonding$/ }).click();
+      await assertVisibleBondCaveats(dialog);
       const slider = dialog.getByRole('slider', { name: 'Nuclear separation', exact: true });
       assert.equal(await slider.getAttribute('max'), String(data.steps.length - 1));
       const far = await energyAt(data.steps.length - 1);
@@ -471,6 +486,7 @@ try {
         );
       }
       await screenshot('bond');
+      await assertVisibleBondCaveats(dialog);
       await dialog.getByText('Calculation method & limitations', { exact: true }).click();
       assert.match(
         await dialog.locator('.electron-method-details').innerText(),
@@ -566,7 +582,8 @@ try {
             .getAttribute('aria-pressed'),
           'true',
         );
-        await modal.getByRole('tab', { name: /A bond forms$/ }).click();
+        await modal.getByRole('tab', { name: /H₂ bonding$/ }).click();
+        await assertVisibleBondCaveats(modal);
         await modal.getByRole('button', { name: 'Lowest sampled energy', exact: true }).click();
         await energyAt(data.equilibriumStepIndex, mobile);
         await canvasReady(mobile);
@@ -619,7 +636,8 @@ try {
       await modal.getByText('Electron cloud view is unavailable', { exact: true }).waitFor();
       await modal.getByRole('button', { name: '2s orbital', exact: true }).click();
       assert.match(await modal.innerText(), /radial node/);
-      await modal.getByRole('tab', { name: /A bond forms$/ }).click();
+      await modal.getByRole('tab', { name: /H₂ bonding$/ }).click();
+      await assertVisibleBondCaveats(modal);
       await modal.getByRole('button', { name: 'Lowest sampled energy', exact: true }).click();
       await energyAt(data.equilibriumStepIndex, fallback);
       assert.equal(await modal.locator('canvas').count(), 0);
