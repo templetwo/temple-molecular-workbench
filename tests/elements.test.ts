@@ -10,7 +10,16 @@ import {
   type InheritedElement,
   type Quantity,
 } from '../src/data/element-properties';
-import { CIAAW_HELIUM, ELEMENT_OVERLAYS, RSC_HASSIUM } from '../src/data/element-overlays';
+import {
+  CIAAW_ABRIDGED,
+  CIAAW_CARBON,
+  CIAAW_HELIUM,
+  CIAAW_HYDROGEN,
+  CIAAW_NITROGEN,
+  CIAAW_OXYGEN,
+  ELEMENT_OVERLAYS,
+  RSC_HASSIUM,
+} from '../src/data/element-overlays';
 import { INHERITED_ELEMENTS, bySymbol, ELEMENTS } from '../src/data/elements';
 import { molarMassOf } from '../src/state/store';
 import type { PlacedAtom } from '../src/state/store';
@@ -105,6 +114,69 @@ test('helium inherited mass flattened CIAAW uncertainty; compiled mass is the ci
   assert.match(helium.context?.precisionNote ?? '', /flattened/);
 });
 
+test('H C N O masses cite CIAAW abridged values and name the interval SAW', () => {
+  const cases = [
+    {
+      sym: 'H',
+      inherited: 1.008,
+      value: 1.008,
+      text: '1.0080(2) u',
+      uncertainty: '0.0002',
+      interval: '\\[1\\.00784, 1\\.00811\\]',
+      abridged: '1\\.0080 ± 0\\.0002',
+      pages: [CIAAW_ABRIDGED, CIAAW_HYDROGEN],
+    },
+    {
+      sym: 'C',
+      inherited: 12.011,
+      value: 12.011,
+      text: '12.011(2) u',
+      uncertainty: '0.002',
+      interval: '\\[12\\.0096, 12\\.0116\\]',
+      abridged: '12\\.011 ± 0\\.002',
+      pages: [CIAAW_ABRIDGED, CIAAW_CARBON],
+    },
+    {
+      sym: 'N',
+      inherited: 14.007,
+      value: 14.007,
+      text: '14.007(1) u',
+      uncertainty: '0.001',
+      interval: '\\[14\\.00643, 14\\.00728\\]',
+      abridged: '14\\.007 ± 0\\.001',
+      pages: [CIAAW_ABRIDGED, CIAAW_NITROGEN],
+    },
+    {
+      sym: 'O',
+      inherited: 15.999,
+      value: 15.999,
+      text: '15.999(1) u',
+      uncertainty: '0.001',
+      interval: '\\[15\\.99903, 15\\.99977\\]',
+      abridged: '15\\.999 ± 0\\.001',
+      pages: [CIAAW_ABRIDGED, CIAAW_OXYGEN],
+    },
+  ] as const;
+
+  for (const row of cases) {
+    assert.equal(INHERITED_ELEMENTS.find((el) => el.sym === row.sym)?.mass, row.inherited);
+    const mass = bySymbol[row.sym].mass;
+    assert.equal(mass.status, 'measured_evaluated');
+    assert.equal(mass.provenance, 'cited');
+    assert.equal(mass.value, row.value);
+    assert.equal(mass.context?.uncertainty, row.uncertainty);
+    assert.notEqual(mass.context?.uncertainty, row.interval.replace(/\\/g, ''));
+    assert.deepEqual(mass.sources, [...row.pages]);
+    const view = presentQuantity(mass);
+    assert.equal(view.appearance, 'measured_evaluated');
+    assert.equal(view.text, row.text);
+    assert.match(mass.context?.precisionNote ?? '', new RegExp(row.abridged));
+    assert.match(mass.context?.precisionNote ?? '', new RegExp(row.interval));
+    assert.match(mass.context?.precisionNote ?? '', /not a midpoint invented here/);
+    assert.match(mass.context?.precisionNote ?? '', /not a scalar measurement uncertainty/);
+  }
+});
+
 test('hassium melting point is withheld, not relabeled as predicted', () => {
   assert.equal(INHERITED_ELEMENTS.find((el) => el.sym === 'Hs')?.melt, 126);
   const melt = bySymbol.Hs.melt;
@@ -177,16 +249,25 @@ test('phase and lattice labels carry status into their consumers', () => {
 
 test('molar-mass totals inherit the weakest mass status and go unavailable if any mass is withheld', () => {
   const water = molarMassOf([atom('H'), atom('H'), atom('O')]);
-  assert.equal(water.status, 'unverified');
+  assert.equal(water.status, 'measured_evaluated');
+  assert.equal(water.provenance, 'cited');
   assert.ok(water.value !== null);
   assert.ok(Math.abs(water.value - 18.015) < 0.001);
-  assert.equal(presentQuantity(water, { digits: 3 }).appearance, 'unverified');
+  assert.equal(presentQuantity(water, { digits: 3 }).appearance, 'measured_evaluated');
+  assert.equal(presentQuantity(water).text, '18.015 u');
+  assert.equal(water.context?.uncertainty, undefined);
+  assert.match(presentQuantity(water).detail ?? '', /different uncertainty resolutions/);
+  assert.deepEqual(water.sources, [CIAAW_ABRIDGED, CIAAW_HYDROGEN, CIAAW_OXYGEN]);
 
   const helium = molarMassOf([atom('He')]);
   assert.equal(helium.status, 'measured_evaluated');
   assert.equal(helium.value, 4.002602);
 
-  const mixed = molarMassOf([atom('He'), atom('O')]);
+  const citedMixed = molarMassOf([atom('He'), atom('O')]);
+  assert.equal(citedMixed.status, 'measured_evaluated');
+  assert.ok(citedMixed.value !== null);
+
+  const mixed = molarMassOf([atom('He'), atom('Li')]);
   assert.equal(mixed.status, 'unverified');
   assert.ok(mixed.value !== null);
 
@@ -270,8 +351,12 @@ test('outer-shell count keeps the parent shells scientific status', () => {
 test('catalog compile keeps 118 elements and applies only named overlays', () => {
   const compiled = compileElements(INHERITED_ELEMENTS, ELEMENT_OVERLAYS);
   assert.equal(compiled.length, 118);
-  assert.equal(compiled.filter((el) => el.mass.status === 'measured_evaluated').length, 1);
+  assert.deepEqual(
+    compiled.filter((el) => el.mass.status === 'measured_evaluated').map((el) => el.sym),
+    ['H', 'He', 'C', 'N', 'O'],
+  );
   assert.deepEqual(bySymbol.He.mass.sources, [CIAAW_HELIUM]);
+  assert.equal(bySymbol.Li.mass.status, 'unverified');
 });
 
 test('three helium masses retain source precision without floating-point display noise', () => {

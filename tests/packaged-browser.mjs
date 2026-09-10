@@ -135,7 +135,7 @@ try {
     const before = await snapshot();
     const [download] = await Promise.all([
       page.waitForEvent('download'),
-      page.getByRole('button', { name: 'Export', exact: true }).click(),
+      page.getByRole('button', { name: 'Export JSON', exact: true }).click(),
     ]);
     assert.match(download.suggestedFilename(), /\.json$/);
     const stream = await download.createReadStream();

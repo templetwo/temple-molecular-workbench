@@ -5,7 +5,7 @@ import { renderToStaticMarkup } from 'react-dom/server';
 import { ElementInspector } from '../src/components/ElementCard';
 import BohrModel from '../src/components/BohrModel';
 import { presentQuantity } from '../src/data/element-properties';
-import { CIAAW_HELIUM } from '../src/data/element-overlays';
+import { CIAAW_ABRIDGED, CIAAW_HELIUM, CIAAW_HYDROGEN } from '../src/data/element-overlays';
 import { bySymbol } from '../src/data/elements';
 import type { ElementData } from '../src/data/elements';
 
@@ -41,6 +41,26 @@ test('helium inspector cites CIAAW on mass and keeps phase as a separate unverif
 
   assert.match(massRow, new RegExp(CIAAW_HELIUM.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
   assert.match(massRow, /flattened/);
+});
+
+test('hydrogen inspector cites abridged CIAAW mass and keeps phase unverified', () => {
+  const html = renderInspector(bySymbol.H);
+  const mass = html.match(/data-property="mass"[\s\S]*?data-property="phase"/)?.[0] ?? '';
+  const phase = html.match(/data-property="phase"[\s\S]*?<\/p>/)?.[0] ?? '';
+  const massRow = html.match(/data-property-row="Atomic mass"[\s\S]*?<\/div>/)?.[0] ?? '';
+
+  assert.match(mass, /1\.0080\(2\)/);
+  assert.match(mass, /data-appearance="measured_evaluated"/);
+  assert.match(mass, /Measured\/evaluated/);
+  assert.match(mass, new RegExp(CIAAW_ABRIDGED.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
+  assert.match(mass, new RegExp(CIAAW_HYDROGEN.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
+
+  assert.match(phase, /gas/);
+  assert.match(phase, /data-appearance="unverified"/);
+  assert.doesNotMatch(phase, /measured_evaluated/);
+
+  assert.match(massRow, /\[1\.00784, 1\.00811\]/);
+  assert.match(massRow, /not a midpoint invented here/);
 });
 
 test('hassium inspector withholds 126 K and still exposes the RSC citation', () => {

@@ -62,8 +62,9 @@ function memoryStorage(seed: string | null = null) {
   };
 }
 
-test('six presets have their stated composition, one connected graph, and common neutral valences', () => {
-  assert.equal(MOLECULE_PRESETS.length, 6);
+test('reference presets have stated composition and one connected graph', () => {
+  // Named 1.3.0 exception: H2, N2, O2, and CO join the original six teaching presets.
+  assert.equal(MOLECULE_PRESETS.length, 10);
   const expected: Record<string, Record<string, number>> = {
     water: { O: 1, H: 2 },
     methane: { C: 1, H: 4 },
@@ -71,15 +72,25 @@ test('six presets have their stated composition, one connected graph, and common
     'carbon-dioxide': { C: 1, O: 2 },
     ethanol: { C: 2, O: 1, H: 6 },
     benzene: { C: 6, H: 6 },
+    hydrogen: { H: 2 },
+    nitrogen: { N: 2 },
+    oxygen: { O: 2 },
+    'carbon-monoxide': { C: 1, O: 1 },
   };
   for (const preset of MOLECULE_PRESETS) {
     assert.deepEqual(atomCounts(preset.atoms), expected[preset.id]);
-    assert.deepEqual(analyzeStructure(preset.atoms, preset.bonds), {
-      components: 1,
-      warnings: [],
-      checkedAtoms: preset.atoms.length,
-      uncheckedSymbols: [],
-    });
+    const analysis = analyzeStructure(preset.atoms, preset.bonds);
+    assert.equal(analysis.components, 1);
+    if (preset.id === 'carbon-monoxide') {
+      assert.ok(analysis.warnings.length > 0);
+    } else {
+      assert.deepEqual(analysis, {
+        components: 1,
+        warnings: [],
+        checkedAtoms: preset.atoms.length,
+        uncheckedSymbols: [],
+      });
+    }
     near(
       preset.atoms.reduce((sum, atom) => sum + atom.pos[0], 0),
       0,
@@ -90,6 +101,17 @@ test('six presets have their stated composition, one connected graph, and common
     );
     near(Math.min(...preset.atoms.map((atom) => atom.pos[1])), 1.4);
   }
+});
+
+test('diatomic gases preserve CCCBDB experimental bond lengths', () => {
+  near(distance(...(byPresetId.hydrogen.atoms as [PlacedAtom, PlacedAtom])), 0.7414);
+  near(distance(...(byPresetId.nitrogen.atoms as [PlacedAtom, PlacedAtom])), 1.0976);
+  near(distance(...(byPresetId.oxygen.atoms as [PlacedAtom, PlacedAtom])), 1.2075);
+  near(distance(...(byPresetId['carbon-monoxide'].atoms as [PlacedAtom, PlacedAtom])), 1.1282);
+  assert.equal(byPresetId.hydrogen.bonds[0].order, 1);
+  assert.equal(byPresetId.oxygen.bonds[0].order, 2);
+  assert.equal(byPresetId.nitrogen.bonds[0].order, 3);
+  assert.equal(byPresetId['carbon-monoxide'].bonds[0].order, 3);
 });
 
 test('water, methane, ammonia and CO₂ preserve reference bond lengths and angles', () => {
@@ -145,7 +167,9 @@ test('Hill formulas and molar masses are calculated from all atoms', () => {
   assert.equal(formulaOf(byPresetId.ammonia.atoms), 'H3N');
   near(molarMassOf(byPresetId.water.atoms).value ?? Number.NaN, 18.015);
   near(molarMassOf(byPresetId.benzene.atoms).value ?? Number.NaN, 78.114);
-  assert.equal(molarMassOf(byPresetId.water.atoms).status, 'unverified');
+  assert.equal(molarMassOf(byPresetId.water.atoms).status, 'measured_evaluated');
+  assert.equal(molarMassOf(byPresetId.methane.atoms).status, 'measured_evaluated');
+  assert.equal(molarMassOf(byPresetId.benzene.atoms).status, 'measured_evaluated');
 });
 
 test('defaults show benzene and retain isolated copies of presets', () => {

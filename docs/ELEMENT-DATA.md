@@ -34,6 +34,10 @@ The inherited file is preserved as `INHERITED_ELEMENTS`. Live `ELEMENTS` are com
 | Element     | Field         | Action                                                                                                                      | Source                                                 |
 | ----------- | ------------- | --------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------ |
 | Helium      | atomic mass   | Replaced. CIAAW _A__r(He) = 4.002 602(2) since 1983. The dump stored `4.0026022`, which flattened the uncertainty notation. | https://ciaaw.org/helium.htm                           |
+| Hydrogen    | atomic mass   | Replaced with the CIAAW abridged value 1.0080 ± 0.0002. The standard atomic weight is the interval \[1.00784, 1.00811\] since 2009; that interval is named in the note and is not stored as a scalar ±_u_ or as a midpoint. | https://ciaaw.org/abridged-atomic-weights.htm, https://ciaaw.org/hydrogen.htm |
+| Carbon      | atomic mass   | Replaced with the CIAAW abridged value 12.011 ± 0.002. SAW interval \[12.0096, 12.0116\] since 2009. | https://ciaaw.org/abridged-atomic-weights.htm, https://ciaaw.org/carbon.htm |
+| Nitrogen    | atomic mass   | Replaced with the CIAAW abridged value 14.007 ± 0.001. SAW interval \[14.00643, 14.00728\] since 2009. | https://ciaaw.org/abridged-atomic-weights.htm, https://ciaaw.org/nitrogen.htm |
+| Oxygen      | atomic mass   | Replaced with the CIAAW abridged value 15.999 ± 0.001. SAW interval \[15.99903, 15.99977\] since 2009. | https://ciaaw.org/abridged-atomic-weights.htm, https://ciaaw.org/oxygen.htm |
 | Hassium     | melting point | Withheld. Inherited `126` K is not displayed. RSC lists the melting point as unknown.                                       | https://periodic-table.rsc.org/element/108/hassium     |
 | Hassium     | density       | Withheld. RSC lists density as unknown.                                                                                     | same RSC page                                          |
 | Carbon      | density       | Withheld. Inherited `1.821` had no allotrope.                                                                               | none; unsupported as a single measured density         |
@@ -51,13 +55,13 @@ Citations are independent, deduplicated HTTP(S) URLs, not joined strings used as
 
 Scalar sums retain the least precise supplied decimal place, avoiding binary floating-point display artifacts without inventing digits. Where all inputs provide numeric uncertainties at the same decimal resolution, uncertainties are added linearly, including repeated uses of the same quantity; the UI states that this assumes neither independent errors nor a new confidence level. Other sums do not invent an aggregate uncertainty. A sum is an arithmetic result, not a new measurement.
 
-H/C/N/O still use inherited, unverified scalars. Their proposed CIAAW interval records have **not** been applied. An evaluated interval is not a scalar uncertainty or a midpoint: it needs explicit interval representation and an independently specified policy for educational molar-mass arithmetic. No workspace-schema change was made for this work.
+H, C, N, and O use the CIAAW **abridged** standard atomic weights as the displayed scalars so molar-mass arithmetic has one number. The **standard** atomic weights remain intervals because of isotopic variation. Those intervals are quoted in the precision note; they are not written into the scalar `uncertainty` field and are not replaced by a midpoint of our own. Mixed H/C/N/O totals therefore do not invent a combined uncertainty (the abridged covering figures have different decimal resolutions). Lithium and the rest of the table are still inherited unverified scalars. No workspace-schema change was made; interval quantities still need a separate representation before they can be summed as bounds.
 
-Passing the chemistry and launcher suites does not establish reference-data accuracy. The element-data tests check status enforcement, the helium citation, withheld hassium and carbon figures, the two non-inference rules above, rendered citations, distinct mass/phase badges, finite-number rejection, and cited calculated mass totals.
+Passing the chemistry and launcher suites does not establish reference-data accuracy. The element-data tests check status enforcement, the helium citation, the H/C/N/O abridged citations with named intervals, withheld hassium and carbon figures, the two non-inference rules above, rendered citations, distinct mass/phase badges, finite-number rejection, and cited calculated mass totals.
 
 ## Remaining work
 
-- Cite standard atomic weights for more elements (CIAAW), with uncertainty or interval notation preserved rather than flattened.
+- Cite standard atomic weights for the rest of the table (CIAAW), with uncertainty or interval notation preserved rather than flattened. Interval-valued elements still need an explicit interval type before molar-mass sums can add bounds instead of abridged covering figures.
 - Qualify remaining densities by allotrope, temperature, and pressure, or withhold them.
 - Source electron affinities with an explicit sign convention before treating any negative value as a physical result.
 - Keep Safari/Firefox browser verification on the roadmap before the next substantial lesson.

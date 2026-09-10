@@ -1,6 +1,11 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { MOLECULE_PRESETS, byPresetId, type MoleculePreset } from '../src/data/molecules';
+import {
+  MOLECULE_PRESETS,
+  byPresetId,
+  guidedPresets,
+  type MoleculePreset,
+} from '../src/data/molecules';
 import { analyzeBonding, getBondingProgress } from '../src/lib/bonding-guide';
 import { MAX_ATOMS, MAX_BONDS, type Bond, type PlacedAtom } from '../src/state/store';
 
@@ -34,7 +39,7 @@ function renamed(preset: MoleculePreset, prefix = 'renamed') {
   };
 }
 
-test('recognition matches all six labeled graphs regardless of atom IDs, order, or bond direction', () => {
+test('recognition matches all labeled reference graphs regardless of atom IDs, order, or bond direction', () => {
   for (const preset of MOLECULE_PRESETS) {
     const scene = renamed(preset);
     const before = JSON.stringify(scene);
@@ -302,4 +307,50 @@ test('guides accept equivalent atom assignments only when the whole chosen refer
       .status,
     'incomplete',
   );
+});
+
+test('the four diatomic gases are recognized like any other reference but are excluded from guided lessons', () => {
+  const gasIds = ['hydrogen', 'nitrogen', 'oxygen', 'carbon-monoxide'];
+  for (const id of gasIds) {
+    const preset = byPresetId[id];
+    assert.equal(preset.guidedLesson, false, `${id} must be tagged guidedLesson: false`);
+
+    // Recognition (analyzeBonding) must keep matching every preset in MOLECULE_PRESETS,
+    // regardless of guidedLesson.
+    const scene = renamed(preset);
+    const result = analyzeBonding(scene.atoms, scene.bonds);
+    assert.equal(result.status, 'recognized', id);
+    assert.equal(result.matches.length, 1);
+    assert.equal(result.matches[0].presetId, id);
+
+    // Guided progress tracking itself still works for a gas if something drives it there
+    // directly; the exclusion is only from the component's guided-build entry points.
+    const progress = getBondingProgress(id, preset.atoms, []);
+    assert.equal(progress.status, 'incomplete');
+    assert.equal(progress.totalBonds, preset.bonds.length);
+  }
+
+  const guided = guidedPresets();
+  for (const id of gasIds)
+    assert.ok(
+      !guided.some((preset) => preset.id === id),
+      `${id} must not be offered as a guide by guidedPresets()`,
+    );
+});
+
+test('guidedPresets returns every preset except those tagged guidedLesson: false, preserving order', () => {
+  const guided = guidedPresets();
+  assert.deepEqual(
+    guided.map((preset) => preset.id),
+    MOLECULE_PRESETS.filter((preset) => preset.guidedLesson !== false).map((preset) => preset.id),
+  );
+  assert.equal(guided.length, MOLECULE_PRESETS.length - 4);
+  for (const preset of guided) assert.notEqual(preset.guidedLesson, false);
+
+  // Original six guided lessons stay guided.
+  for (const id of ['benzene', 'water', 'methane', 'ammonia', 'carbon-dioxide', 'ethanol'])
+    assert.ok(
+      guided.some((preset) => preset.id === id),
+      `${id} must remain a guided lesson`,
+    );
 });

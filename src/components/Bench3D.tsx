@@ -47,6 +47,8 @@ export interface BenchViewMemory {
 interface BenchOptions {
   highlightedAtomIds?: string[];
   numberedLabels?: boolean;
+  showMeasurements?: boolean;
+  explainedBondId?: string | null;
   viewMemoryRef?: RefObject<BenchViewMemory | null>;
 }
 
@@ -263,6 +265,7 @@ const AtomMesh = memo(function AtomMesh({
   selected,
   source,
   hinted,
+  dimmed = false,
   label,
   onAtomDown,
   onHover,
@@ -273,6 +276,7 @@ const AtomMesh = memo(function AtomMesh({
   selected: boolean;
   source: boolean;
   hinted: boolean;
+  dimmed?: boolean;
   label: string;
   onAtomDown: (event: ThreeEvent<PointerEvent>, atom: PlacedAtom) => void;
   onHover: (hovering: boolean) => void;
@@ -301,6 +305,8 @@ const AtomMesh = memo(function AtomMesh({
           clearcoat={0.85}
           clearcoatRoughness={0.2}
           envMapIntensity={0.65}
+          transparent={dimmed}
+          opacity={dimmed ? 0.12 : 1}
           emissive={source || selected ? ACCENT : hinted ? '#80ddea' : '#000000'}
           emissiveIntensity={source ? 0.22 : selected || hinted ? 0.08 : 0}
         />
@@ -354,11 +360,15 @@ const BondMesh = memo(function BondMesh({
   a,
   b,
   style,
+  showMeasurements = false,
+  dimmed = false,
 }: {
   bond: Bond;
   a: PlacedAtom;
   b: PlacedAtom;
   style: DisplayStyle;
+  showMeasurements?: boolean;
+  dimmed?: boolean;
 }) {
   const parts = useMemo(() => {
     const start = new THREE.Vector3(...a.pos);
@@ -385,6 +395,7 @@ const BondMesh = memo(function BondMesh({
   }, [a.pos, b.pos, bond.order, style]);
   if (style === 'space-fill') return null;
   const radius = style === 'wireframe' ? 0.026 : bond.order === 1 ? 0.087 : 0.065;
+  const opacity = dimmed ? 0.12 : 1;
   const onClick = (event: ThreeEvent<MouseEvent>) => {
     if (event.button !== 0) return;
     event.stopPropagation();
@@ -398,14 +409,36 @@ const BondMesh = memo(function BondMesh({
         <group key={index} position={part.position} quaternion={part.quaternion}>
           <mesh castShadow position={[0, -part.length / 4, 0]} onClick={onClick}>
             <cylinderGeometry args={[radius, radius, part.length / 2, 16]} />
-            <meshStandardMaterial color={atomColor(a.sym)} roughness={0.28} metalness={0.12} />
+            <meshStandardMaterial
+              color={atomColor(a.sym)}
+              roughness={0.28}
+              metalness={0.12}
+              transparent={dimmed}
+              opacity={opacity}
+            />
           </mesh>
           <mesh castShadow position={[0, part.length / 4, 0]} onClick={onClick}>
             <cylinderGeometry args={[radius, radius, part.length / 2, 16]} />
-            <meshStandardMaterial color={atomColor(b.sym)} roughness={0.28} metalness={0.12} />
+            <meshStandardMaterial
+              color={atomColor(b.sym)}
+              roughness={0.28}
+              metalness={0.12}
+              transparent={dimmed}
+              opacity={opacity}
+            />
           </mesh>
         </group>
       ))}
+      {showMeasurements && parts[0] ? (
+        <Html
+          position={parts[0].position.toArray()}
+          center
+          distanceFactor={8}
+          style={{ pointerEvents: 'none' }}
+        >
+          <span className="bond-length-badge">{parts[0].length.toFixed(2)} Å</span>
+        </Html>
+      ) : null}
     </group>
   );
 });
@@ -589,6 +622,8 @@ const StudioLighting = memo(function StudioLighting() {
 function MoleculeScene({
   highlightedAtomIds = [],
   numberedLabels = false,
+  showMeasurements = false,
+  explainedBondId = null,
   viewMemoryRef,
 }: BenchOptions) {
   const atoms = useBench((state) => state.atoms);
@@ -600,6 +635,10 @@ function MoleculeScene({
   const showGrid = useBench((state) => state.showGrid);
   const { onAtomDown, onHover } = useAtomInteraction();
   const atomMap = useMemo(() => new Map(atoms.map((atom) => [atom.id, atom])), [atoms]);
+  const explainedBond = useMemo(
+    () => (explainedBondId ? bonds.find((bond) => bond.id === explainedBondId) : undefined),
+    [bonds, explainedBondId],
+  );
   const floorY = useMemo(
     () =>
       atoms.length
@@ -643,7 +682,15 @@ function MoleculeScene({
         const a = atomMap.get(bond.a);
         const b = atomMap.get(bond.b);
         return a && b ? (
-          <BondMesh key={bond.id} bond={bond} a={a} b={b} style={displayStyle} />
+          <BondMesh
+            key={bond.id}
+            bond={bond}
+            a={a}
+            b={b}
+            style={displayStyle}
+            showMeasurements={showMeasurements || explainedBond?.id === bond.id}
+            dimmed={explainedBond !== undefined && explainedBond.id !== bond.id}
+          />
         ) : null;
       })}
       {atoms.map((atom, index) => (
@@ -654,6 +701,12 @@ function MoleculeScene({
           labels={showLabels || numberedLabels}
           label={numberedLabels ? `${atom.sym}${index + 1}` : atom.sym}
           hinted={highlightedAtomIds.includes(atom.id)}
+          dimmed={Boolean(
+            explainedBondId &&
+              bonds.find((bond) => bond.id === explainedBondId) &&
+              atom.id !== bonds.find((bond) => bond.id === explainedBondId)?.a &&
+              atom.id !== bonds.find((bond) => bond.id === explainedBondId)?.b,
+          )}
           selected={selectedId === atom.id}
           source={bondSourceId === atom.id}
           onAtomDown={onAtomDown}

@@ -27,7 +27,8 @@
 
 Start with benzene's ring, rotate methane's tetrahedron, or build a structure from the periodic table. A focused studio layout keeps the collection, the molecule, and its properties together.
 
-- **Six reference molecules.** Benzene, water, methane, ammonia, carbon dioxide, and ethanol, with geometry notes and source-backed coordinates.
+- **Ten reference molecules.** Benzene, water, methane, ammonia, carbon dioxide, ethanol, hydrogen, nitrogen, oxygen, and carbon monoxide, with geometry notes and source-backed coordinates. Liquid water is a bookkeeping species without its own 3D drawing.
+- **Reaction lab.** Declare reactants and products from the library. The app checks conservation, balances coefficients, and totals cited formation data at 298.15 K. It does not predict reactions.
 - **118 elements to explore.** Search by name, symbol, or atomic number; filter categories; inspect element properties with an explicit scientific status on each field.
 - **An editable 3D bench.** Move atoms, connect bonds, cycle single/double/triple bonds, and switch between ball-and-stick, illustrative space-fill, and wireframe views.
 - **A bonding coach.** Identify matching reference bond patterns, see inventory-based possibilities, or build a known molecule with numbered atoms, 3D hints, and undoable steps. Recognition is not reaction prediction.
@@ -82,6 +83,7 @@ Open the address printed by Vite, normally **http://127.0.0.1:5173**. Choose a m
 | `npm run check`         | Run regression tests, lint, and the production build          |
 | `npm run test:e2e`      | Verify real browser workflows against a running local server  |
 | `npm run test:bonding`  | Check reference recognition and guided bonding workflows      |
+| `npm run test:reactions` | Check the Reaction lab, species card, and unit toggle workflows |
 | `npm run test:packaged` | Verify the offline production app at `127.0.0.1:5178`         |
 
 For browser tests, start `npm run dev` in another terminal. The test runner uses locally installed Google Chrome when available; otherwise run `npx playwright install chromium` once. Failure screenshots are written to `test-results/`. To refresh the workbench screenshots, use `node tests/browser.mjs --screenshot`; Electron Lab captures use `node tests/electrons-browser.mjs --screenshot`. The Electron Lab suite also accepts `TEST_BASE_URL` for checking a production build without source imports.
@@ -114,7 +116,7 @@ Open **Electron lab** in the header for two separate learning views. Select a hy
 
 ## The chemistry
 
-The six presets use educational reference geometries derived from the **NIST Computational Chemistry Comparison and Benchmark Database (CCCBDB, SRD 101)**. Coordinates are translated or rotated for presentation without changing their relative distances. One model coordinate unit is **one ångström (Å)**.
+The reference drawings use educational geometries derived from the **NIST Computational Chemistry Comparison and Benchmark Database (CCCBDB, SRD 101)**. Coordinates are translated or rotated for presentation without changing their relative distances. One model coordinate unit is **one ångström (Å)**.
 
 | Molecule       | Formula | Reference geometry                                           | Source                                                           |
 | -------------- | ------- | ------------------------------------------------------------ | ---------------------------------------------------------------- |
@@ -124,6 +126,10 @@ The six presets use educational reference geometries derived from the **NIST Com
 | Ammonia        | NH₃     | Trigonal pyramidal; 106.67° in this reference                | [NIST](https://cccbdb.nist.gov/exp2x.asp?casno=7664417&charge=0) |
 | Carbon dioxide | CO₂     | Linear; 180°                                                 | [NIST](https://cccbdb.nist.gov/exp2x.asp?casno=124389&charge=0)  |
 | Ethanol        | C₂H₆O   | A reference conformer with approximately tetrahedral carbons | [NIST](https://cccbdb.nist.gov/exp2x.asp?casno=64175&charge=0)   |
+| Hydrogen       | H₂      | Linear; 0.741 Å                                              | [NIST](https://cccbdb.nist.gov/exp2x.asp?casno=1333740&charge=0) |
+| Nitrogen       | N₂      | Linear; 1.098 Å                                              | [NIST](https://cccbdb.nist.gov/exp2x.asp?casno=7727379&charge=0) |
+| Oxygen         | O₂      | Linear; 1.208 Å                                              | [NIST](https://cccbdb.nist.gov/exp2x.asp?casno=7782447&charge=0) |
+| Carbon monoxide| CO      | Linear; 1.128 Å                                              | [NIST](https://cccbdb.nist.gov/exp2x.asp?casno=630080&charge=0)  |
 
 Benzene's alternating bond sticks depict one Kekulé representation. Its π electrons are delocalized; the preset uses equal ring-edge lengths. See the [IUPAC definition of aromaticity](https://goldbook.iupac.org/terms/view/A00442).
 
@@ -135,7 +141,7 @@ The separate **Electron Lab** uses analytic nonrelativistic hydrogen orbitals an
 
 Atom radii, bond thicknesses, and the space-fill display are visual conventions. Electron-shell and lattice views are schematic. Bond distances measure the current coordinates. Common-valence notes are limited to selected neutral covalent atoms and do not determine chemical stability, formal charge, aromaticity, or metal coordination.
 
-Element properties in [`src/data/elements.ts`](src/data/elements.ts) are compiled from the inherited dump plus explicit overlays. Each displayed field has a scientific status (measured/evaluated, calculated/predicted, unverified, or unavailable) separate from provenance. Unverified values are inherited and are not reference measurements. Unsupported numbers are withheld rather than guessed. Helium’s mass cites [CIAAW](https://ciaaw.org/helium.htm). Hassium’s inherited melting point and density are withheld because the [RSC table](https://periodic-table.rsc.org/element/108/hassium) lists them as unknown. Carbon density is withheld until an allotrope is specified. Molar-mass totals inherit the weakest mass status in the structure. See [element data notes](docs/ELEMENT-DATA.md). Passing the automated suites does not establish reference-data accuracy.
+Element properties in [`src/data/elements.ts`](src/data/elements.ts) are compiled from the inherited dump plus explicit overlays. Each displayed field has a scientific status (measured/evaluated, calculated/predicted, unverified, or unavailable) separate from provenance. Unverified values are inherited and are not reference measurements. Unsupported numbers are withheld rather than guessed. Helium’s mass cites the [CIAAW](https://ciaaw.org/helium.htm) standard weight. H, C, N, and O cite [CIAAW abridged weights](https://ciaaw.org/abridged-atomic-weights.htm); their standard atomic weights are intervals and are named in the notes, not replaced by a silent midpoint. Hassium’s inherited melting point and density are withheld because the [RSC table](https://periodic-table.rsc.org/element/108/hassium) lists them as unknown. Carbon density is withheld until an allotrope is specified. Molar-mass totals inherit the weakest mass status in the structure. See [element data notes](docs/ELEMENT-DATA.md). Passing the automated suites does not establish reference-data accuracy.
 
 Custom formulas use Hill ordering and total the entire bench, including disconnected fragments. Reference cards retain familiar formulas such as NH₃; the same custom composition is H₃N in Hill order.
 

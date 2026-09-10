@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { ArrowUpRight, Check, Compass, Link2, Sparkles } from 'lucide-react';
-import { MOLECULE_PRESETS, PRESET_SOURCES, byPresetId } from '@/data/molecules';
+import { MOLECULE_PRESETS, PRESET_SOURCES, byPresetId, guidedPresets } from '@/data/molecules';
 import { bySymbol } from '@/data/elements';
 import { atomColor, type PlacedAtom } from '@/state/store';
 import type { analyzeBonding, getBondingProgress } from '@/lib/bonding-guide';
@@ -34,6 +34,7 @@ export default function BondingGuide({
 }) {
   const [choice, setChoice] = useState('water');
   const reference = guideId ? byPresetId[guideId] : null;
+  const guided = guidedPresets();
   const namedMatches = new Map<string, number>();
   for (const match of analysis.matches)
     namedMatches.set(match.presetId, (namedMatches.get(match.presetId) ?? 0) + 1);
@@ -68,7 +69,9 @@ export default function BondingGuide({
           <span className="eyebrow">CONNECT / DISCOVER</span>
           <h3>Bonding coach</h3>
         </div>
-        <span className="bonding-library-count">06 refs</span>
+        <span className="bonding-library-count">
+          {String(MOLECULE_PRESETS.length).padStart(2, '0')} refs
+        </span>
       </div>
 
       <div className="bonding-recognition" aria-live="polite" aria-atomic="true">
@@ -126,8 +129,8 @@ export default function BondingGuide({
           <>
             <strong>No connectivity match yet</strong>
             <p>
-              Outside this six-reference library does not mean impossible. Reactions and stability
-              are not predicted.
+              Outside this reference library does not mean impossible. Reactions and stability are
+              not predicted.
             </p>
           </>
         )}
@@ -136,25 +139,28 @@ export default function BondingGuide({
       {!guideId && analysis.suggestions.length > 0 && analysis.matches.length === 0 && (
         <div className="bonding-suggestions">
           <span className="bonding-label">REFERENCE POSSIBILITIES · ATOM COUNTS ONLY</span>
-          {analysis.suggestions.slice(0, 3).map((suggestion) => (
-            <button
-              key={suggestion.presetId}
-              onClick={() => setChoice(suggestion.presetId)}
-              aria-label={`Choose ${byPresetId[suggestion.presetId].name} guide`}
-            >
-              <span>
-                {byPresetId[suggestion.presetId].name}
-                <small>
-                  {suggestion.missingAtomCount
-                    ? `Needs ${suggestion.missingAtoms.map(({ sym, count }) => `${count} ${sym}`).join(', ')}`
-                    : suggestion.extraAtomCount
-                      ? `${suggestion.extraAtomCount} atoms left over`
-                      : 'All required atoms present'}
-                </small>
-              </span>
-              <span>{byPresetId[suggestion.presetId].formula}</span>
-            </button>
-          ))}
+          {analysis.suggestions
+            .filter((suggestion) => byPresetId[suggestion.presetId].guidedLesson !== false)
+            .slice(0, 3)
+            .map((suggestion) => (
+              <button
+                key={suggestion.presetId}
+                onClick={() => setChoice(suggestion.presetId)}
+                aria-label={`Choose ${byPresetId[suggestion.presetId].name} guide`}
+              >
+                <span>
+                  {byPresetId[suggestion.presetId].name}
+                  <small>
+                    {suggestion.missingAtomCount
+                      ? `Needs ${suggestion.missingAtoms.map(({ sym, count }) => `${count} ${sym}`).join(', ')}`
+                      : suggestion.extraAtomCount
+                        ? `${suggestion.extraAtomCount} atoms left over`
+                        : 'All required atoms present'}
+                  </small>
+                </span>
+                <span>{byPresetId[suggestion.presetId].formula}</span>
+              </button>
+            ))}
         </div>
       )}
 
@@ -236,7 +242,7 @@ export default function BondingGuide({
           value={choice}
           onChange={(event) => setChoice(event.target.value)}
         >
-          {MOLECULE_PRESETS.map((preset) => (
+          {guided.map((preset) => (
             <option key={preset.id} value={preset.id}>
               {preset.name} · {preset.formula}
             </option>

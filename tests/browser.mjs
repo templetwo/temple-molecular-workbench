@@ -393,7 +393,7 @@ try {
   await check('export downloads the current valid workspace', async () => {
     const [download] = await Promise.all([
       page.waitForEvent('download'),
-      page.getByRole('button', { name: 'Export', exact: true }).click(),
+      page.getByRole('button', { name: 'Export JSON', exact: true }).click(),
     ]);
     assert.match(download.suggestedFilename(), /\.json$/);
     const stream = await download.createReadStream();
@@ -525,7 +525,7 @@ try {
       .waitFor();
     const [download] = await Promise.all([
       fallback.waitForEvent('download'),
-      fallback.getByRole('button', { name: 'Export', exact: true }).click(),
+      fallback.getByRole('button', { name: 'Export JSON', exact: true }).click(),
     ]);
     assert.match(download.suggestedFilename(), /\.json$/);
     await fallbackContext.close();

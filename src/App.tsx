@@ -36,7 +36,14 @@ import { bySymbol } from '@/data/elements';
 import { presentQuantity } from '@/data/element-properties';
 import PropertyStatus from '@/components/PropertyStatus';
 import BondingGuide from '@/components/BondingGuide';
+import ReactionLab from '@/components/ReactionLab';
+import SpeciesCard from '@/components/SpeciesCard';
+import UnitToggle from '@/components/UnitToggle';
+import { loadUnits } from '@/lib/units';
+import { speciesForPreset } from '@/data/species';
+import { exportXyz, parseXyz } from '@/lib/xyz';
 import { analyzeBonding, getBondingProgress } from '@/lib/bonding-guide';
+import '@/components/reaction-lab.css';
 import type { BenchViewMemory } from '@/components/Bench3D';
 import { analyzeStructure } from '@/lib/chemistry';
 import { addElementToBench } from '@/lib/element-library';
@@ -128,6 +135,10 @@ export default function App() {
   const [mobileLibrary, setMobileLibrary] = useState(false);
   const [help, setHelp] = useState(false);
   const [electronLab, setElectronLab] = useState(false);
+  const [reactionLab, setReactionLab] = useState(false);
+  const [units, setUnits] = useState(loadUnits);
+  const [showMeasurements, setShowMeasurements] = useState(false);
+  const [explainedBondId, setExplainedBondId] = useState<string | null>(null);
   const [guidedPresetId, setGuidedPresetId] = useState<string | null>(null);
   const benchView = useRef<BenchViewMemory | null>(null);
   const [notice, setNotice] = useState('');
@@ -135,6 +146,7 @@ export default function App() {
   const viewport = useRef<HTMLDivElement>(null);
   const library = useRef<HTMLElement>(null);
   const preset = s.activePresetId ? byPresetId[s.activePresetId] : null;
+  const species = preset ? speciesForPreset(preset.id) : undefined;
   const selected = s.atoms.find((a) => a.id === s.selectedId);
   const formula = formulaOf(s.atoms);
   const analysis = analyzeStructure(s.atoms, s.bonds);
@@ -172,6 +184,7 @@ export default function App() {
         target?.closest('input,textarea,select,[contenteditable="true"],[role="dialog"]') ||
         help ||
         electronLab ||
+        reactionLab ||
         s.tableOpen ||
         mobileLibrary
       )
@@ -203,7 +216,7 @@ export default function App() {
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [s, help, mobileLibrary, electronLab]);
+  }, [s, help, mobileLibrary, electronLab, reactionLab]);
   useEffect(() => {
     if (!mobileLibrary) return;
     const previous = document.activeElement as HTMLElement | null;
@@ -264,6 +277,7 @@ export default function App() {
   function startGuide(id: string) {
     s.startGuidedBuild(id);
     setGuidedPresetId(id);
+    setExplainedBondId(null);
     setNotice(`${byPresetId[id].name} practice atoms ready. Each connection is undoable.`);
   }
   function applyGuideStep() {
@@ -271,8 +285,10 @@ export default function App() {
     const wrong = guideProgress.wrongBonds[0];
     const missing = guideProgress.missingBonds[0];
     if (wrong) {
-      if (wrong.expectedOrder === null) s.removeBond(wrong.bondId);
-      else s.setBondOrder(wrong.a, wrong.b, wrong.expectedOrder);
+      if (wrong.expectedOrder === null) {
+        s.removeBond(wrong.bondId);
+        setExplainedBondId(null);
+      } else s.setBondOrder(wrong.a, wrong.b, wrong.expectedOrder);
     } else if (missing) s.setBondOrder(missing.a, missing.b, missing.order);
   }
   return (
@@ -302,6 +318,42 @@ export default function App() {
           <span className="local-status">
             <i /> Local workspace
           </span>
+          <UnitToggle units={units} onChange={setUnits} />
+          <Dialog.Root open={reactionLab} onOpenChange={setReactionLab}>
+            <Dialog.Trigger asChild>
+              <button className="electron-launch-button" aria-label="Reaction lab">
+                <FlaskConical size={16} />
+                <span>Reaction lab</span>
+              </button>
+            </Dialog.Trigger>
+            <Dialog.Portal>
+              <Dialog.Overlay className="dialog-overlay electron-overlay" />
+              <Dialog.Content className="electron-dialog">
+                <div className="electron-dialog-heading">
+                  <div className="electron-dialog-brand">
+                    <span className="electron-brand-icon">
+                      <FlaskConical size={23} strokeWidth={1.4} />
+                    </span>
+                    <div>
+                      <span className="eyebrow">TEMPLE LAB / BOOKKEEPING</span>
+                      <Dialog.Title>Reaction lab</Dialog.Title>
+                    </div>
+                  </div>
+                  <Dialog.Close className="icon-button" aria-label="Close reaction lab">
+                    <X size={21} />
+                  </Dialog.Close>
+                </div>
+                <Dialog.Description className="electron-dialog-description">
+                  Declare reactants and products from the library. The app conserves, balances, and
+                  totals cited data. It does not predict a reaction.
+                </Dialog.Description>
+                <div className="reaction-dialog-units">
+                  <UnitToggle units={units} onChange={setUnits} />
+                </div>
+                <ReactionLab units={units} />
+              </Dialog.Content>
+            </Dialog.Portal>
+          </Dialog.Root>
           <Dialog.Root open={electronLab} onOpenChange={setElectronLab}>
             <Dialog.Trigger asChild>
               <button className="electron-launch-button" aria-label="Electron lab">
@@ -349,9 +401,29 @@ export default function App() {
           >
             <ArrowUpFromLine size={17} />
           </button>
-          <button className="export-button" onClick={download}>
+          <button className="export-button" aria-label="Export JSON" onClick={download}>
             <ArrowDownToLine size={15} />
-            <span>Export</span>
+            <span>Export JSON</span>
+          </button>
+          <button
+            className="export-button"
+            aria-label="Export XYZ"
+            onClick={() => {
+              const url = URL.createObjectURL(
+                new Blob([exportXyz(s.atoms, preset?.name ?? 'Temple Lab')], {
+                  type: 'chemical/x-xyz',
+                }),
+              );
+              const link = document.createElement('a');
+              link.href = url;
+              link.download = `temple-${preset?.id ?? 'molecule'}.xyz`;
+              link.click();
+              window.setTimeout(() => URL.revokeObjectURL(url), 1000);
+              setNotice('XYZ exported. Bonds are not in XYZ; import comes back as unbonded atoms.');
+            }}
+          >
+            <ArrowDownToLine size={15} />
+            <span>XYZ</span>
           </button>
           <button
             className="icon-button"
@@ -364,7 +436,7 @@ export default function App() {
         <input
           ref={fileInput}
           type="file"
-          accept=".json,application/json"
+          accept=".json,.xyz,application/json,chemical/x-xyz"
           hidden
           onChange={async (e) => {
             const file = e.currentTarget.files?.[0];
@@ -375,15 +447,44 @@ export default function App() {
               return;
             }
             try {
-              const result = s.importScene(await file.text());
-              if (result.ok) setGuidedPresetId(null);
+              const text = await file.text();
+              if (file.name.toLowerCase().endsWith('.xyz')) {
+                const { atoms, bonds } = parseXyz(text);
+                const wrapped = JSON.stringify({
+                  kind: 'molecule-studio',
+                  schemaVersion: 1,
+                  units: 'angstrom',
+                  atoms,
+                  bonds,
+                });
+                const result = s.importScene(wrapped);
+                if (result.ok) {
+                  setGuidedPresetId(null);
+                  setExplainedBondId(null);
+                }
+                setNotice(
+                  result.ok
+                    ? 'XYZ imported as unbonded atoms. Your previous workspace can be restored with Undo.'
+                    : (result.error ?? 'Could not import this XYZ file.'),
+                );
+                return;
+              }
+              const result = s.importScene(text);
+              if (result.ok) {
+                setGuidedPresetId(null);
+                setExplainedBondId(null);
+              }
               setNotice(
                 result.ok
                   ? 'Workspace imported. Ready to explore.'
                   : (result.error ?? 'Could not import this workspace.'),
               );
-            } catch {
-              setNotice('This file could not be read. Your workspace is unchanged.');
+            } catch (error) {
+              setNotice(
+                error instanceof Error
+                  ? error.message
+                  : 'This file could not be read. Your workspace is unchanged.',
+              );
             }
           }}
         />
@@ -453,6 +554,7 @@ export default function App() {
                     onClick={() => {
                       s.loadPreset(p.id);
                       setGuidedPresetId(null);
+                      setExplainedBondId(null);
                       setMobileLibrary(false);
                     }}
                     aria-pressed={p.id === s.activePresetId}
@@ -482,7 +584,7 @@ export default function App() {
                   <br />
                   <span>Big discoveries.</span>
                 </p>
-                <span className="note-number">06</span>
+                <span className="note-number">{String(MOLECULE_PRESETS.length).padStart(2, '0')}</span>
               </div>
             </>
           ) : (
@@ -596,6 +698,8 @@ export default function App() {
                 <Bench3D
                   highlightedAtomIds={highlightedAtoms}
                   numberedLabels={Boolean(guidedPresetId)}
+                  showMeasurements={showMeasurements}
+                  explainedBondId={explainedBondId}
                   viewMemoryRef={benchView}
                 />
               )}
@@ -650,6 +754,15 @@ export default function App() {
                 onClick={s.toggleLabels}
               >
                 <Tag size={17} />
+              </button>
+              <button
+                className={`scene-action ${showMeasurements ? 'active' : ''}`}
+                aria-label="Toggle bond length callouts"
+                title="Bond lengths (from current coordinates)"
+                aria-pressed={showMeasurements}
+                onClick={() => setShowMeasurements((value) => !value)}
+              >
+                <Link2 size={17} />
               </button>
               <button
                 className={`scene-action ${s.showGrid ? 'active' : ''}`}
@@ -740,6 +853,7 @@ export default function App() {
                 disabled={!s.atoms.length}
                 onClick={() => {
                   s.clearAll();
+                  setExplainedBondId(null);
                   setNotice('Workbench cleared. Undo to restore your molecule.');
                 }}
               >
@@ -808,6 +922,7 @@ export default function App() {
                 onReference={(id) => {
                   s.loadPreset(id);
                   setGuidedPresetId(null);
+                  setExplainedBondId(null);
                   setNotice('Reference geometry loaded. Undo restores your practice drawing.');
                 }}
               />
@@ -817,6 +932,7 @@ export default function App() {
                 </span>
                 <span className="structure-type">{preset?.category ?? 'Custom structure'}</span>
               </div>
+              {species ? <SpeciesCard species={species} units={units} /> : null}
               <div className="property-list">
                 <div>
                   <span>Geometry</span>
@@ -944,6 +1060,9 @@ export default function App() {
                 <p className="measurement-note">
                   Drawn connections. Distances follow your model coordinates, not a predicted bond
                   length.
+                  {explainedBondId
+                    ? ' Other atoms are dimmed for focus; that is a visual cue, not a claim that those bonds are weaker.'
+                    : ''}
                 </p>
                 {s.bonds.map((b) => {
                   const a = s.atoms.find((x) => x.id === b.a),
@@ -957,6 +1076,15 @@ export default function App() {
                       </span>
                       <strong>{length.toFixed(3)} Å</strong>
                       <button
+                        aria-label={`Explain ${a.sym} to ${z.sym} bond`}
+                        title="Explain this bond (others dimmed for focus)"
+                        onClick={() =>
+                          setExplainedBondId((current) => (current === b.id ? null : b.id))
+                        }
+                      >
+                        <CircleHelp size={13} />
+                      </button>
+                      <button
                         aria-label={`Cycle ${a.sym} to ${z.sym} bond order`}
                         title="Cycle bond order"
                         onClick={() => s.cycleBond(b.id)}
@@ -966,7 +1094,10 @@ export default function App() {
                       <button
                         aria-label={`Remove ${a.sym} to ${z.sym} bond`}
                         title="Remove bond"
-                        onClick={() => s.removeBond(b.id)}
+                        onClick={() => {
+                          s.removeBond(b.id);
+                          setExplainedBondId(null);
+                        }}
                       >
                         <X size={13} />
                       </button>
@@ -1056,7 +1187,7 @@ export default function App() {
               <div>
                 <span>01</span>
                 <p>
-                  <strong>Start with a structure.</strong>Choose one of six reference molecules or
+                  <strong>Start with a structure.</strong>Choose a reference molecule or
                   add any element from the periodic table.
                 </p>
               </div>
@@ -1072,8 +1203,8 @@ export default function App() {
                 <span>03</span>
                 <p>
                   <strong>Keep exploring.</strong>Your scene is stored in this browser when storage
-                  is available. Export a JSON workspace for a portable copy. Undo also restores
-                  cleared or replaced structures.
+                  is available. Export JSON or XYZ. Reaction lab totals cited formation data for
+                  reactions you declare. Undo also restores cleared or replaced structures.
                 </p>
               </div>
             </div>

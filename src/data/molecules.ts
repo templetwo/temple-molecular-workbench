@@ -10,6 +10,13 @@ export interface MoleculePreset {
   lesson: string;
   atoms: PlacedAtom[];
   bonds: Bond[];
+  /**
+   * Omitted (or any value other than false) means this preset is one of the
+   * original guided-build lessons. `false` marks a preset that recognition
+   * still matches but that guided-build entry points (the "Start guided
+   * build" select and the inventory suggestion list) must not offer.
+   */
+  guidedLesson?: false;
 }
 
 /**
@@ -34,6 +41,10 @@ export const PRESET_SOURCES = {
   'carbon-dioxide': 'https://cccbdb.nist.gov/exp2x.asp?casno=124389&charge=0',
   ethanol: 'https://cccbdb.nist.gov/exp2x.asp?casno=64175&charge=0',
   benzene: 'https://cccbdb.nist.gov/exp2x.asp?casno=71432&charge=0',
+  hydrogen: 'https://cccbdb.nist.gov/exp2x.asp?casno=1333740&charge=0',
+  nitrogen: 'https://cccbdb.nist.gov/exp2x.asp?casno=7727379&charge=0',
+  oxygen: 'https://cccbdb.nist.gov/exp2x.asp?casno=7782447&charge=0',
+  'carbon-monoxide': 'https://cccbdb.nist.gov/exp2x.asp?casno=630080&charge=0',
 };
 
 type AtomInput = [string, number, number, number];
@@ -222,8 +233,95 @@ export const MOLECULE_PRESETS: MoleculePreset[] = [
       ],
     ),
   },
+  {
+    id: 'hydrogen',
+    name: 'Hydrogen',
+    formula: 'H2',
+    category: 'Diatomic',
+    description: 'Two hydrogen nuclei share a single bond.',
+    geometry: 'Linear · 0.741 Å',
+    lesson:
+      'This is the experimental H–H distance from CCCBDB (0.741 Å). The Electron Lab H₂ curve is a separate calculated lesson and is not this drawing.',
+    guidedLesson: false,
+    ...structure(
+      'hydrogen',
+      [
+        ['H', 0, 0, 0],
+        ['H', 0, 0, 0.7414],
+      ],
+      [[1, 2]],
+    ),
+  },
+  {
+    id: 'nitrogen',
+    name: 'Nitrogen',
+    formula: 'N2',
+    category: 'Diatomic',
+    description: 'A triple bond holds two nitrogen atoms.',
+    geometry: 'Linear · 1.098 Å',
+    lesson:
+      'The experimental N≡N distance here is 1.098 Å from CCCBDB. Air is mostly this molecule.',
+    guidedLesson: false,
+    ...structure(
+      'nitrogen',
+      [
+        ['N', 0, 0, 0.5488],
+        ['N', 0, 0, -0.5488],
+      ],
+      [[1, 2, 3]],
+    ),
+  },
+  {
+    id: 'oxygen',
+    name: 'Oxygen',
+    formula: 'O2',
+    category: 'Diatomic',
+    description: 'Two oxygen atoms share a double bond in this Lewis drawing.',
+    geometry: 'Linear · 1.208 Å',
+    lesson:
+      'The experimental O=O distance is 1.208 Å from CCCBDB. The double stick is a Lewis drawing; O₂ is a diradical in a fuller description.',
+    guidedLesson: false,
+    ...structure(
+      'oxygen',
+      [
+        ['O', 0, 0, 0],
+        ['O', 0, 0, 1.2075],
+      ],
+      [[1, 2, 2]],
+    ),
+  },
+  {
+    id: 'carbon-monoxide',
+    name: 'Carbon monoxide',
+    formula: 'CO',
+    category: 'Diatomic',
+    description: 'Carbon and oxygen share a triple bond in this Lewis drawing.',
+    geometry: 'Linear · 1.128 Å',
+    lesson:
+      'The experimental C≡O distance is 1.128 Å from CCCBDB. The common-valence checker flags this sketch because a triple bond does not match the simple C=4 / O=2 count.',
+    guidedLesson: false,
+    ...structure(
+      'carbon-monoxide',
+      [
+        ['C', 0, 0, 0],
+        ['O', 0, 0, 1.1282],
+      ],
+      [[1, 2, 3]],
+    ),
+  },
 ];
 
 export const byPresetId: Record<string, MoleculePreset> = Object.fromEntries(
   MOLECULE_PRESETS.map((preset) => [preset.id, preset]),
 );
+
+/**
+ * Presets offered as guided-build lessons: everything except those tagged
+ * `guidedLesson: false`. Recognition (bonding-guide.ts) keeps matching every
+ * preset in MOLECULE_PRESETS regardless of this filter; only guided-build
+ * entry points (the "Start guided build" select and the inventory suggestion
+ * list) should call this instead of using MOLECULE_PRESETS directly.
+ */
+export function guidedPresets(): MoleculePreset[] {
+  return MOLECULE_PRESETS.filter((preset) => preset.guidedLesson !== false);
+}

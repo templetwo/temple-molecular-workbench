@@ -1,5 +1,19 @@
 # Changelog
 
+## 1.3.0 — 2026-09-10
+
+- Species library separate from 3D presets: the original six plus H₂, N₂, O₂, and CO drawings, and liquid water as a bookkeeping species without a 3D model.
+- Inspector species card: hyphenated CAS, InChIKey, NIST WebBook / CCCBDB / PubChem links, and quoted Chase 1998 (JANAF) ΔfH° and S° where those values were retrieved from WebBook on 2026-09-06.
+- Reaction lab: user-declared reactants and products, conservation check, integer balance, limiting reagent, atom economy, and 298.15 K ΔrH°/ΔrG°/K. Missing formation data stays unavailable.
+- Unit toggle for temperature, energy, and pressure. Scene JSON stays schema version 1.
+- Bond-length callouts and an explain-this-bond focus dim, both default off. XYZ export/import of coordinates (no bonds).
+- Hazardous gases (Cl₂, SO₂, HCl) are not in this cut.
+- H, C, N, and O atomic masses cite CIAAW abridged standard atomic weights (1.0080 ± 0.0002, 12.011 ± 0.002, 14.007 ± 0.001, 15.999 ± 0.001). The interval standard atomic weights are named in the notes; they are not stored as scalar ±u or as a midpoint. Water, methane, and the other H/C/N/O molar-mass badges are measured/evaluated arithmetic of those cited masses. Lithium and the rest of the table stay unverified.
+- Atom economy is the first listed product’s mass over the mass of all reactants in the balanced equation. The earlier product-sum form was 100% for every balanced equation and measured nothing.
+- The header keeps its controls inside a 390 px viewport: below 700 px the unit toggle lives in the Reaction lab dialog and the export buttons go icon-only with accessible names. The Reaction lab dialog carries a unit toggle at every width.
+- Review fixes before release: the balancer no longer re-runs on every keystroke; a cleared or zero amount reads as a missing amount instead of Infinity; liquid water's thermochemistry is tagged CODATA 1984 so a Hess sum that mixes it with Chase 1998 values says so; a stale explain-this-bond selection no longer dims the next molecule; XYZ import rejects a blank count line and extra atom lines; the four gases are recognized by the bonding coach but are not offered as guided lessons.
+- Reaction lab selects and mole inputs have accessible names. A Reaction lab browser workflow checks methane combustion totals, the water-phase switch, unavailable propagation, limiting reagent, an unbalanceable declaration, dialog isolation, unit conversion and persistence, and the 390 px layout.
+
 ## 1.2.0 — 2026-09-06
 
 - Added Bonding coach: six-reference connectivity recognition, inventory-only suggestions, and guided 3D builds with numbered atoms, next-pair rings, and undoable bond/order edits. Reference geometry loading remains explicit; no reaction prediction or workspace-schema change.

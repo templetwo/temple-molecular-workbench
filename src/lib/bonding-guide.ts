@@ -133,7 +133,7 @@ function components(graph: Graph): string[][] {
 }
 
 /**
- * Exact labeled, bond-order-aware signatures for the six reference graphs.
+ * Exact labeled, bond-order-aware signatures for the reference graphs.
  * Five are trees and benzene is unicyclic. Canonical rooted-tree encodings and
  * both directions/rotations of a cycle avoid factorial isomorphism searches.
  * Other graph classes deliberately return no reference signature. Coordinates
@@ -295,7 +295,7 @@ export function getBondingProgress(
     missingAtomIds: [],
     extraAtomIds: [],
   };
-  if (!preset) result.errors.push('This guide is outside the six-reference library.');
+  if (!preset) result.errors.push('This guide is outside the reference library.');
   if (!preset || result.errors.length) return result;
 
   const live = new Map(atoms.map((atom) => [atom.id, atom]));
